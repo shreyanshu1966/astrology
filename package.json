@@ -1,0 +1,18 @@
+{
+  "name": "astrology",
+  "version": "1.0.0",
+  "description": "Jaydeep Shirote - Numerology & Self-Awareness Website",
+  "main": "index.js",
+  "scripts": {
+    "dev": "cd jaydeep-website/frontend && npm run dev",
+    "build": "cd jaydeep-website/frontend && npm run build",
+    "preview": "cd jaydeep-website/frontend && npm run preview",
+    "install-deps": "cd jaydeep-website/frontend && npm install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "author": "Jaydeep Shirote",
+  "license": "ISC"
+}

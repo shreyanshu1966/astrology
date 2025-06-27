@@ -1,0 +1,11 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "buildCommand": "cd jaydeep-website/frontend && npm install && npm run build",
+  "outputDirectory": "jaydeep-website/frontend/dist",
+  "installCommand": "cd jaydeep-website/frontend && npm install"
+}
