@@ -5,6 +5,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger)
 
+// Export scroll management hooks
+export { useScrollToTop, useScrollRestore, useScrollToElement } from './useScrollManagement'
+
 // Hook for fade-in animations
 export const useFadeInAnimation = (direction = 'up', delay = 0, duration = 0.8) => {
   const ref = useRef()

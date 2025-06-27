@@ -161,3 +161,46 @@ export function formatDate(date, format = 'medium') {
   
   return new Intl.DateTimeFormat('en-IN', options[format]).format(date)
 }
+
+/**
+ * Utility function to scroll to top of page
+ * @param {string} behavior - 'smooth' or 'instant' (default: 'instant')
+ */
+export function scrollToTop(behavior = 'instant') {
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: behavior
+  })
+}
+
+/**
+ * Utility function to save scroll position
+ * @param {string} key - Key to save scroll position under
+ */
+export function saveScrollPosition(key = 'scrollPosition') {
+  const scrollPosition = {
+    x: window.pageXOffset || document.documentElement.scrollLeft,
+    y: window.pageYOffset || document.documentElement.scrollTop
+  }
+  sessionStorage.setItem(key, JSON.stringify(scrollPosition))
+}
+
+/**
+ * Utility function to restore scroll position
+ * @param {string} key - Key to restore scroll position from
+ * @param {string} behavior - 'smooth' or 'instant' (default: 'instant')
+ */
+export function restoreScrollPosition(key = 'scrollPosition', behavior = 'instant') {
+  const savedPosition = sessionStorage.getItem(key)
+  if (savedPosition) {
+    const { x, y } = JSON.parse(savedPosition)
+    window.scrollTo({
+      top: y,
+      left: x,
+      behavior: behavior
+    })
+    // Clear the saved position after restoring
+    sessionStorage.removeItem(key)
+  }
+}
