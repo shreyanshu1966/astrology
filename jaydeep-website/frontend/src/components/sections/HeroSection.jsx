@@ -131,6 +131,15 @@ const HeroSection = () => {
             Empowering individuals to achieve self-awareness and personal growth through 
             numerology, astrology, and self-awareness tools
           </p>
+
+            <div ref={offerRef} className="text-center mt-8">
+            <p className="text-golden-wisdom font-accent text-lg sm:text-xl mb-3 font-bold drop-shadow-lg">
+              ✨ Introductory Offer - Just ₹99! ✨
+            </p>
+            <p className="text-white/90 text-sm sm:text-base font-medium drop-shadow-md">
+              Not a prediction — A self-revelation!
+            </p>
+          </div>
           
           <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12 sm:mb-16">
             <Link
@@ -149,14 +158,7 @@ const HeroSection = () => {
             </Link>
           </div>
           
-          <div ref={offerRef} className="text-center mt-8">
-            <p className="text-golden-wisdom font-accent text-lg sm:text-xl mb-3 font-bold drop-shadow-lg">
-              ✨ Introductory Offer - Just ₹99! ✨
-            </p>
-            <p className="text-white/90 text-sm sm:text-base font-medium drop-shadow-md">
-              Not a prediction — A self-revelation!
-            </p>
-          </div>
+        
         </div>
       </div>
 
