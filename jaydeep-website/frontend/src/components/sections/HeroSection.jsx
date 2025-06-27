@@ -11,44 +11,74 @@ const HeroSection = () => {
   const offerRef = useRef()
 
   useEffect(() => {
-    const tl = gsap.timeline()
-    
-    tl.from(titleRef.current, {
-      y: 100,
+    // Set initial state for smooth animation
+    gsap.set([titleRef.current, subtitleRef.current, ctaRef.current, offerRef.current], {
       opacity: 0,
-      duration: 1,
+      y: 60,
+      scale: 0.95
+    })
+    
+    const tl = gsap.timeline({ 
+      defaults: { 
+        ease: "power3.out",
+        duration: 1.2 
+      }
+    })
+    
+    // Smooth sequential animation with better timing
+    tl.to(titleRef.current, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 1.4,
       ease: "power3.out"
     })
-    .from(subtitleRef.current, {
-      y: 50,
-      opacity: 0,
+    .to(subtitleRef.current, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 1,
+      ease: "power2.out"
+    }, "-=0.8")
+    .to(ctaRef.current.children, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 0.8,
+      stagger: 0.2,
+      ease: "back.out(1.2)"
+    }, "-=0.6")
+    .to(offerRef.current, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
       duration: 0.8,
       ease: "power2.out"
-    }, "-=0.5")
-    .from(ctaRef.current.children, {
-      y: 30,
-      opacity: 0,
-      duration: 0.6,
-      stagger: 0.2,
-      ease: "back.out(1.7)"
-    }, "-=0.3")
-    .from(offerRef.current, {
-      scale: 0.8,
-      opacity: 0,
-      duration: 0.5,
-      ease: "back.out(1.7)"
-    }, "-=0.2")
+    }, "-=0.4")
 
-    // Floating elements animation
+    // Smooth floating elements animation
     gsap.to(".floating-element", {
-      y: "random(-20, 20)",
-      x: "random(-10, 10)",
-      rotation: "random(-15, 15)",
-      duration: "random(3, 6)",
+      y: "random(-15, 15)",
+      x: "random(-8, 8)",
+      rotation: "random(-10, 10)",
+      duration: "random(4, 7)",
       ease: "sine.inOut",
-      stagger: 0.5,
+      stagger: {
+        amount: 1,
+        from: "random"
+      },
       repeat: -1,
       yoyo: true
+    })
+
+    // Add a subtle breathing effect to the hero content
+    gsap.to(heroRef.current, {
+      scale: 1.005,
+      duration: 4,
+      ease: "sine.inOut",
+      repeat: -1,
+      yoyo: true,
+      delay: 2
     })
   }, [])
 
@@ -97,15 +127,15 @@ const HeroSection = () => {
             Inner Self
           </h1>
           
-          <p ref={subtitleRef} className="text-lg sm:text-xl lg:text-2xl mb-8 text-white max-w-4xl mx-auto leading-relaxed drop-shadow-md">
+          <p ref={subtitleRef} className="text-lg sm:text-xl lg:text-2xl mb-8 text-white max-w-4xl mx-auto leading-relaxed drop-shadow-lg font-medium">
             Empowering individuals to achieve self-awareness and personal growth through 
             numerology, astrology, and self-awareness tools
           </p>
           
-          <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-8 sm:mb-12">
+          <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12 sm:mb-16">
             <Link
               to="/services"
-              className="btn-primary group w-full sm:w-auto text-center"
+              className="btn-primary group w-full sm:w-auto text-center font-semibold"
             >
               Get Your Personal Report
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
@@ -113,17 +143,17 @@ const HeroSection = () => {
             
             <Link
               to="/framework"
-              className="btn-secondary w-full sm:w-auto text-center"
+              className="btn-secondary w-full sm:w-auto text-center font-semibold"
             >
               Explore Our Framework
             </Link>
           </div>
           
-          <div ref={offerRef} className="text-center">
-            <p className="text-golden-wisdom font-accent text-lg sm:text-xl mb-2">
+          <div ref={offerRef} className="text-center mt-8">
+            <p className="text-golden-wisdom font-accent text-lg sm:text-xl mb-3 font-bold drop-shadow-lg">
               ✨ Introductory Offer - Just ₹99! ✨
             </p>
-            <p className="text-white/80 text-sm sm:text-base">
+            <p className="text-white/90 text-sm sm:text-base font-medium drop-shadow-md">
               Not a prediction — A self-revelation!
             </p>
           </div>
