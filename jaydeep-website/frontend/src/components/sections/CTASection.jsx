@@ -39,7 +39,7 @@ const CTASection = () => {
             </div>
           </div>
           
-          <h2 className="heading-section text-cosmic mb-6">
+          <h2 className="heading-section text-cosmic-contrast mb-6">
             🌟 Discover the Most Accurate Map to <em className="font-accent text-golden-wisdom">Your</em> Inner Self 🌟
           </h2>
           

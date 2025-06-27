@@ -32,7 +32,7 @@ const JourneySection = () => {
   return (
     <section className="section-container bg-white/50">
       <div className="text-center mb-16">
-        <h2 className="heading-section text-cosmic">
+        <h2 className="heading-section text-cosmic-contrast">
           How My Journey into Self-Awareness Began
         </h2>
         <div className="w-24 h-1 bg-gradient-to-r from-cosmic-purple to-golden-wisdom mx-auto mb-8"></div>

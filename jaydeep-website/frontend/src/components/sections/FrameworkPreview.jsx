@@ -1,8 +1,14 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Brain, Heart, Users, Briefcase, ArrowRight, CheckCircle } from 'lucide-react'
+import { useScrollAnimation, useTextRevealAnimation } from '../../hooks/useAnimations'
 
 const FrameworkPreview = () => {
+  const titleRef = useTextRevealAnimation(0.1)
+  const coreRef = useScrollAnimation('scaleIn', { start: "top 85%" })
+  const pillarsRef = useScrollAnimation('staggerChildren', { start: "top 80%" })
+  const philosophyRef = useScrollAnimation('fadeIn', { start: "top 85%" })
+
   const pillars = [
     {
       icon: Brain,
@@ -37,7 +43,7 @@ const FrameworkPreview = () => {
   return (
     <section className="section-container bg-white/30">
       <div className="text-center mb-16">
-        <h2 className="heading-section text-cosmic">
+        <h2 ref={titleRef} className="heading-section text-cosmic-contrast">
           The Roadmap to an Enriched Life
         </h2>
         <div className="w-24 h-1 bg-gradient-to-r from-cosmic-purple to-golden-wisdom mx-auto mb-8"></div>
@@ -48,8 +54,8 @@ const FrameworkPreview = () => {
       </div>
 
       {/* Core Principle */}
-      <div className="card-cosmic max-w-3xl mx-auto mb-16 text-center">
-        <Brain className="w-16 h-16 text-cosmic-purple mx-auto mb-6" />
+      <div ref={coreRef} className="card-cosmic max-w-3xl mx-auto mb-16 text-center hover-lift">
+        <Brain className="w-16 h-16 text-cosmic-purple mx-auto mb-6 animate-float" />
         <h3 className="text-2xl font-heading font-semibold text-cosmic mb-4">
           Core Principle: Know Yourself (SWOT)
         </h3>
@@ -61,13 +67,13 @@ const FrameworkPreview = () => {
       </div>
 
       {/* Four Pillars */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-16">
+      <div ref={pillarsRef} className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-16">
         {pillars.map((pillar, index) => {
           const IconComponent = pillar.icon
           return (
-            <div key={index} className="card-cosmic group h-full">
+            <div key={index} className="card-cosmic group h-full hover-lift">
               <div className="flex items-center mb-6">
-                <div className={`w-16 h-16 bg-gradient-to-br ${pillar.color} rounded-full flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`w-16 h-16 bg-gradient-to-br ${pillar.color} rounded-full flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300 animate-glow`}>
                   <IconComponent className="w-8 h-8 text-white" />
                 </div>
                 <div>
@@ -94,7 +100,7 @@ const FrameworkPreview = () => {
       </div>
 
       {/* Philosophy */}
-      <div className="bg-gradient-to-r from-cosmic-purple to-mystic-teal rounded-3xl p-8 md:p-12 text-white text-center max-w-5xl mx-auto">
+      <div ref={philosophyRef} className="bg-gradient-to-r from-cosmic-purple to-mystic-teal rounded-3xl p-8 md:p-12 text-white text-center max-w-5xl mx-auto hover-lift">
         <h3 className="text-2xl md:text-3xl font-heading font-semibold mb-6">
           ✅ The Philosophy: No Need to Sacrifice Anything
         </h3>

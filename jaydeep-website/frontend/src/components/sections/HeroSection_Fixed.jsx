@@ -91,13 +91,13 @@ const HeroSection = () => {
       {/* Hero Content */}
       <div className="relative z-10 text-center text-white px-4 sm:px-6 max-w-6xl mx-auto">
         <div>
-          <h1 ref={titleRef} className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-heading font-bold leading-tight mb-6 text-white drop-shadow-lg">
+          <h1 ref={titleRef} className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-heading font-bold leading-tight mb-6">
             Discover the Most Accurate Map to{' '}
-            <span className="text-golden-wisdom font-accent drop-shadow-lg">Your</span>{' '}
+            <span className="text-golden font-accent">Your</span>{' '}
             Inner Self
           </h1>
           
-          <p ref={subtitleRef} className="text-lg sm:text-xl lg:text-2xl mb-8 text-white max-w-4xl mx-auto leading-relaxed drop-shadow-md">
+          <p ref={subtitleRef} className="text-lg sm:text-xl lg:text-2xl mb-8 text-white/90 max-w-4xl mx-auto leading-relaxed">
             Empowering individuals to achieve self-awareness and personal growth through 
             numerology, astrology, and self-awareness tools
           </p>

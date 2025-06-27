@@ -20,10 +20,10 @@
   --charcoal: #2C2C2C;
   --silver-mist: #F5F5F5;
   
-  /* Typography */
-  --font-heading: 'Playfair Display', Georgia, serif;
-  --font-body: 'Inter', Arial, sans-serif;
-  --font-accent: 'Dancing Script', cursive;
+  /* Typography with Enhanced Fallbacks */
+  --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-accent: 'Dancing Script', 'Apple Chancery', cursive;
   
   /* Spacing */
   --section-padding: 5rem;
@@ -56,15 +56,46 @@ body {
 
 /* Typography Classes */
 .text-cosmic {
+  color: var(--cosmic-purple);
+  font-weight: 700; /* Increased weight for better visibility */
+  text-shadow: 0 1px 2px rgba(45, 27, 105, 0.1);
+}
+
+/* Gradient text version for special elements only */
+.text-cosmic-gradient {
   background: linear-gradient(135deg, var(--cosmic-purple), var(--mystic-teal));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  color: var(--cosmic-purple); /* Fallback color */
+  font-weight: 700;
+}
+
+/* Ensure gradient text fallback works */
+@supports not (background-clip: text) {
+  .text-cosmic-gradient {
+    color: var(--cosmic-purple) !important;
+    background: none !important;
+  }
+}
+
+/* High contrast version for better accessibility */
+.text-cosmic-solid {
+  color: var(--cosmic-purple);
+  font-weight: 700;
+}
+
+/* High contrast version for critical text */
+.text-cosmic-contrast {
+  color: var(--cosmic-purple) !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 .text-golden {
   color: var(--golden-wisdom);
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+  font-weight: 500; /* Add weight for better visibility */
 }
 
 /* Custom Component Styles */
@@ -214,4 +245,179 @@ textarea:focus {
   .heading-section {
     @apply text-3xl;
   }
+}
+
+/* Phase 2 Enhancements */
+
+/* Additional Animation Classes */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out;
+}
+
+/* Enhanced Button and Card Styles Override */
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-r from-cosmic-purple to-mystic-teal text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-cosmic cursor-pointer flex items-center justify-center;
+  }
+  
+  .btn-secondary {
+    @apply bg-transparent border-2 border-golden-wisdom text-golden-wisdom px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:bg-golden-wisdom hover:text-cosmic-purple hover:scale-105 flex items-center justify-center;
+  }
+  
+  .card-cosmic {
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-cosmic border border-white/20 transition-all duration-300 hover:shadow-golden hover:scale-[1.02];
+  }
+}
+
+/* Form Focus Effects */
+input:focus,
+textarea:focus,
+select:focus {
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+}
+
+/* Three.js Canvas Positioning */
+.three-canvas {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Enhanced Text Visibility Fixes */
+
+/* Ensure all text has proper contrast during animations */
+.animate-fade-in-up *,
+.animate-fade-in-left *,
+.animate-fade-in-right * {
+  opacity: 1 !important;
+}
+
+/* Override any problematic gradient text on light backgrounds */
+.cosmic-bg .text-cosmic,
+.bg-white .text-cosmic,
+.bg-white\/80 .text-cosmic,
+.bg-white\/90 .text-cosmic {
+  color: var(--cosmic-purple) !important;
+  background: none !important;
+  -webkit-text-fill-color: var(--cosmic-purple) !important;
+  font-weight: 700 !important;
+}
+
+/* Ensure text is visible in cards and panels */
+.card-cosmic .text-cosmic {
+  color: var(--cosmic-purple) !important;
+  font-weight: 600 !important;
+}
+
+/* Better visibility for heading elements */
+h1.text-cosmic,
+h2.text-cosmic,
+h3.text-cosmic,
+h4.text-cosmic,
+h5.text-cosmic,
+h6.text-cosmic {
+  color: var(--cosmic-purple) !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 2px rgba(45, 27, 105, 0.1);
+}
+
+/* High contrast version for critical text */
+.text-cosmic-contrast {
+  color: var(--cosmic-purple) !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure buttons have proper text contrast */
+.btn-primary .text-cosmic {
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+/* Animation Text Visibility Fixes */
+
+/* Ensure text visibility during GSAP animations */
+[style*="opacity: 0"] {
+  transition: none !important;
+}
+
+/* Force visibility for animated text elements */
+.gsap-animated,
+.gsap-animated * {
+  opacity: 1 !important;
+  color: inherit !important;
+}
+
+/* Character animation fixes */
+.char {
+  opacity: 1 !important;
+  color: inherit !important;
+  display: inline-block;
+}
+
+/* Text reveal animation fixes */
+h1 .char,
+h2 .char,
+h3 .char {
+  opacity: 1 !important;
+  color: inherit !important;
+}
+
+/* Ensure hero text is always visible */
+.hero-title,
+.hero-subtitle,
+.hero-cta {
+  opacity: 1 !important;
+  color: white !important;
+}
+
+/* Override any transparent text fills during animations */
+*[style*="-webkit-text-fill-color: transparent"] {
+  -webkit-text-fill-color: inherit !important;
+  color: inherit !important;
+}
+
+/* Prevent text from becoming invisible during transforms */
+[style*="transform"] * {
+  opacity: 1 !important;
+}
+
+/* Final override for maximum text visibility */
+h1, h2, h3, h4, h5, h6 {
+  opacity: 1 !important;
+  color: inherit !important;
+}
+
+/* Ensure all heading text is visible during any animation */
+h1[style*="opacity"],
+h2[style*="opacity"], 
+h3[style*="opacity"],
+h4[style*="opacity"],
+h5[style*="opacity"],
+h6[style*="opacity"] {
+  opacity: 1 !important;
+}
+
+/* Make sure cosmic text is always visible */
+.text-cosmic {
+  opacity: 1 !important;
+}
+
+/* Hero section specific fixes */
+.hero-gradient h1,
+.hero-gradient p {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7) !important;
+  color: white !important;
 }

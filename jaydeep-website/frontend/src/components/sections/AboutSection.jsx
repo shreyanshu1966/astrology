@@ -37,7 +37,7 @@ const AboutSection = () => {
   return (
     <section className="section-container">
       <div className="text-center mb-16">
-        <h2 className="heading-section text-cosmic">
+        <h2 className="heading-section text-cosmic-contrast">
           About Jaydeep Shirote
         </h2>
         <div className="w-24 h-1 bg-gradient-to-r from-cosmic-purple to-golden-wisdom mx-auto mb-8"></div>

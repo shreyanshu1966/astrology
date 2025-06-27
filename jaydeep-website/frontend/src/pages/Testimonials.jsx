@@ -5,7 +5,7 @@ const Testimonials = () => {
     <div className="min-h-screen pt-20 cosmic-bg">
       <div className="section-container">
         <div className="text-center mb-16">
-          <h1 className="heading-hero text-cosmic mb-6">
+          <h1 className="heading-hero text-cosmic-contrast mb-6">
             Client Testimonials
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
