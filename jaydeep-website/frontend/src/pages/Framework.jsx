@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import { Heart, DollarSign, Users, Briefcase, Target, Brain, Zap, Shield } from 'lucide-react'
-import FrameworkVisualization from '../components/three/FrameworkVisualization'
-import CosmicBackground from '../components/three/CosmicBackground'
-import WebGLErrorBoundary from '../components/WebGLErrorBoundary'
+import InteractiveFrameworkModel from '../components/interactive/InteractiveFrameworkModel'
 import { useScrollAnimation, useTextRevealAnimation, useCounterAnimation, useStaggerRevealAnimation, useTextMorphAnimation } from '../hooks/useAnimations'
 
 const Framework = () => {
@@ -58,10 +56,13 @@ const Framework = () => {
   ]
 
   return (
-    <div className="min-h-screen pt-20 cosmic-bg relative">
-      <WebGLErrorBoundary>
-        <CosmicBackground intensity={0.6} />
-      </WebGLErrorBoundary>
+    <div className="min-h-screen pt-20 bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-indigo-200/30 to-purple-200/30 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-pink-200/30 to-rose-200/30 rounded-full blur-xl animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-32 left-1/3 w-40 h-40 bg-gradient-to-br from-blue-200/20 to-cyan-200/20 rounded-full blur-xl animate-pulse" style={{animationDelay: '2s'}}></div>
+      </div>
       
       {/* Hero Section */}
       <div ref={heroRef} className="section-container">
@@ -97,17 +98,18 @@ const Framework = () => {
           </div>
         </div>
 
-        {/* 3D Framework Visualization */}
+        {/* Interactive Framework Visualization */}
         <div className="mb-20">
           <h2 className="heading-section text-center text-cosmic mb-8">
             Interactive Framework Model
           </h2>
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-cosmic">
-            <WebGLErrorBoundary>
-              <FrameworkVisualization activeSection={activeSection} />
-            </WebGLErrorBoundary>
-            <p className="text-center text-gray-600 mt-4">
-              Click and drag to explore • Hover over pillars for details
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-white/20">
+            <InteractiveFrameworkModel 
+              activeSection={activeSection} 
+              onSectionChange={setActiveSection}
+            />
+            <p className="text-center text-gray-600 mt-4 text-sm">
+              🎯 Click on pillars to explore • 💫 Watch the energy flow between elements
             </p>
           </div>
         </div>
@@ -118,20 +120,44 @@ const Framework = () => {
             The Four Pillars of Life
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {pillars.map((pillar, index) => (
-              <div
-                key={index}
-                className="card-cosmic group cursor-pointer transition-all duration-300 pillar-card"
-                onMouseEnter={() => setActiveSection(pillar.title.split(' ')[0])}
-                onMouseLeave={() => setActiveSection(null)}
-              >
+            {pillars.map((pillar, index) => {
+              const isActive = activeSection === pillar.title.split(' ')[0].toLowerCase()
+              return (
+                <div
+                  key={index}
+                  className={`card-cosmic group cursor-pointer transition-all duration-500 pillar-card transform ${
+                    isActive ? 'scale-105 shadow-2xl ring-2 ring-offset-2' : 'hover:scale-102'
+                  }`}
+                  style={{
+                    ringColor: isActive ? (
+                      pillar.title.includes('Health') ? '#7CB342' :
+                      pillar.title.includes('Wealth') ? '#FFD700' :
+                      pillar.title.includes('Relationships') ? '#E91E63' :
+                      '#4A90E2'
+                    ) : 'transparent'
+                  }}
+                  onMouseEnter={() => setActiveSection(pillar.title.split(' ')[0].toLowerCase())}
+                  onMouseLeave={() => setActiveSection(null)}
+                  onClick={() => setActiveSection(
+                    activeSection === pillar.title.split(' ')[0].toLowerCase() ? 
+                    null : 
+                    pillar.title.split(' ')[0].toLowerCase()
+                  )}
+                >
                 <div className="flex items-start space-x-4">
-                  <div className={`${pillar.bgColor} p-4 rounded-xl`}>
-                    <pillar.icon className={`w-8 h-8 ${pillar.color}`} />
+                  <div className={`${pillar.bgColor} p-4 rounded-xl transition-all duration-300 ${
+                    isActive ? 'scale-110 shadow-lg' : ''
+                  }`}>
+                    <pillar.icon className={`w-8 h-8 ${pillar.color} transition-all duration-300 ${
+                      isActive ? 'scale-110' : ''
+                    }`} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="heading-subsection text-cosmic mb-3">
+                    <h3 className={`heading-subsection mb-3 transition-all duration-300 ${
+                      isActive ? 'text-indigo-700' : 'text-cosmic'
+                    }`}>
                       {pillar.title}
+                      {isActive && <span className="ml-2 text-sm">✨</span>}
                     </h3>
                     <p className="text-gray-600 mb-4">
                       {pillar.description}
@@ -140,14 +166,29 @@ const Framework = () => {
                       {pillar.aspects.map((aspect, aspectIndex) => (
                         <div
                           key={aspectIndex}
-                          className="text-sm text-gray-500 flex items-center"
+                          className={`text-sm text-gray-500 flex items-center transition-all duration-300 ${
+                            isActive ? 'text-gray-700 font-medium' : ''
+                          }`}
                         >
-                          <div className={`w-2 h-2 rounded-full ${pillar.color.replace('text-', 'bg-')} mr-2`} />
+                          <div className={`w-2 h-2 rounded-full mr-2 transition-all duration-300 ${
+                            pillar.color.replace('text-', 'bg-')
+                          } ${isActive ? 'scale-125 shadow-md' : ''}`} />
                           {aspect}
                         </div>
                       ))}
                     </div>
-                    <div className={`${pillar.bgColor} p-3 rounded-lg`}>
+                    <div className={`${pillar.bgColor} p-3 rounded-lg transition-all duration-300 ${
+                      isActive ? 'shadow-md border-l-4' : ''
+                    }`}
+                      style={{
+                        borderLeftColor: isActive ? (
+                          pillar.title.includes('Health') ? '#7CB342' :
+                          pillar.title.includes('Wealth') ? '#FFD700' :
+                          pillar.title.includes('Relationships') ? '#E91E63' :
+                          '#4A90E2'
+                        ) : 'transparent'
+                      }}
+                    >
                       <p className="text-sm font-medium text-gray-700">
                         <strong>SWOT Focus:</strong> {pillar.swotFocus}
                       </p>
@@ -155,7 +196,8 @@ const Framework = () => {
                   </div>
                 </div>
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
 

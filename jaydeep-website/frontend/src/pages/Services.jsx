@@ -15,7 +15,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import CosmicBackground from '../components/three/CosmicBackground'
-import NumerologyChart from '../components/three/NumerologyChart'
+
 import SelfAssessmentTool from '../components/interactive/SelfAssessmentTool'
 import EnhancedSelfAssessmentTool from '../components/interactive/EnhancedSelfAssessmentTool'
 import WebGLErrorBoundary from '../components/WebGLErrorBoundary'
@@ -228,21 +228,7 @@ const Services = () => {
         </div>
 
         {/* Interactive Numerology Visualization */}
-        <div className="mb-20">
-          <div className="text-center mb-12">
-            <h2 className="heading-section text-cosmic mb-4">
-              Explore Your Life Path Number
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">
-              Experience the power of numerological insights with our interactive visualization. 
-              See how your Life Path Number influences your personality and spiritual journey.
-            </p>
-          </div>
-          
-          <WebGLErrorBoundary>
-            <NumerologyChart />
-          </WebGLErrorBoundary>
-        </div>
+      
         <div className="mb-20">
           <div className="text-center mb-12">
             <h2 className="heading-section text-cosmic mb-4">

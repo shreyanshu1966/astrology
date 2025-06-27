@@ -137,6 +137,134 @@ body {
   }
 }
 
+/* Keyframe Animations for Interactive Framework */
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px) translateX(0px) rotate(0deg); 
+    opacity: 0.6;
+  }
+  25% { 
+    transform: translateY(-8px) translateX(3px) rotate(2deg); 
+    opacity: 0.8;
+  }
+  50% { 
+    transform: translateY(-15px) translateX(6px) rotate(0deg); 
+    opacity: 1;
+  }
+  75% { 
+    transform: translateY(-8px) translateX(3px) rotate(-2deg); 
+    opacity: 0.8;
+  }
+}
+
+@keyframes fade-in {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px) scale(0.95); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); 
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.8); 
+  }
+}
+
+@keyframes energy-flow {
+  0% { 
+    stroke-dashoffset: 100; 
+    opacity: 0.3;
+  }
+  50% { 
+    opacity: 0.8;
+  }
+  100% { 
+    stroke-dashoffset: 0; 
+    opacity: 0.3;
+  }
+}
+
+@keyframes rotate-orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes scale-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Animation Classes */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-energy-flow {
+  animation: energy-flow 3s ease-in-out infinite;
+}
+
+.animate-rotate-orbit {
+  animation: rotate-orbit 20s linear infinite;
+}
+
+.animate-scale-pulse {
+  animation: scale-pulse 2s ease-in-out infinite;
+}
+
+/* Enhanced Button and Card Styles Override */
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-r from-cosmic-purple to-mystic-teal text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-cosmic cursor-pointer flex items-center justify-center;
+  }
+  
+  .btn-secondary {
+    @apply bg-transparent border-2 border-golden-wisdom text-golden-wisdom px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:bg-golden-wisdom hover:text-cosmic-purple hover:scale-105 flex items-center justify-center;
+  }
+  
+  .card-cosmic {
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-cosmic border border-white/20 transition-all duration-300 hover:shadow-golden hover:scale-[1.02];
+  }
+}
+
+/* Interactive Framework Specific Styles */
+.framework-pillar {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.framework-pillar:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.2));
+}
+
+.framework-pillar.active {
+  transform: scale(1.2);
+  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.3));
+}
+
+.energy-line {
+  stroke-dasharray: 10, 5;
+  animation: energy-flow 3s ease-in-out infinite;
+}
+
+.cosmic-particle {
+  animation: float 4s ease-in-out infinite;
+}
+
 /* Animation Classes */
 .animate-fade-in-up {
   animation: fadeInUp 0.8s ease-out forwards;
