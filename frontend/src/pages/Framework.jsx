@@ -1,20 +1,19 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Heart, DollarSign, Users, Briefcase, Target, Brain, Zap, Shield } from 'lucide-react'
-import InteractiveFrameworkModel from '../components/interactive/InteractiveFrameworkModel'
-import { useScrollAnimation, useTextRevealAnimation, useCounterAnimation, useStaggerRevealAnimation, useTextMorphAnimation } from '../hooks/useAnimations'
+import { useScrollAnimation, useTextRevealAnimation, useCounterAnimation, useStaggerRevealAnimation } from '../hooks/useAnimations'
 
 const Framework = () => {
   const [activeSection, setActiveSection] = useState(null)
   
-  const heroRef = useScrollAnimation('fadeIn')
-  const titleRef = useTextMorphAnimation(0.2)
-  const statsRef = useStaggerRevealAnimation('.stat-card')
-  const pillarsRef = useStaggerRevealAnimation('.pillar-card', { start: "top 70%" })
-  const philosophyRef = useScrollAnimation('slideInLeft', { start: "top 75%" })
+  const heroRef = useScrollAnimation('fadeIn', { start: "top 85%", end: "bottom 15%" })
+  const titleRef = useTextRevealAnimation(0.3)
+  const statsRef = useStaggerRevealAnimation('.stat-card', { start: "top 75%", end: "bottom 25%" })
+  const pillarsRef = useStaggerRevealAnimation('.pillar-card', { start: "top 65%", end: "bottom 35%" })
+  const philosophyRef = useScrollAnimation('slideInLeft', { start: "top 70%", end: "bottom 30%" })
   
-  const counter1Ref = useCounterAnimation(1000, 2)
-  const counter2Ref = useCounterAnimation(95, 1.5)
-  const counter3Ref = useCounterAnimation(500, 2.5)
+  const counter1Ref = useCounterAnimation(1000, 2, 0.2)
+  const counter2Ref = useCounterAnimation(95, 2, 0.4)
+  const counter3Ref = useCounterAnimation(500, 2, 0.6)
 
   const pillars = [
     {
@@ -57,13 +56,6 @@ const Framework = () => {
 
   return (
     <div className="min-h-screen pt-20 bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative">
-      {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-indigo-200/30 to-purple-200/30 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-pink-200/30 to-rose-200/30 rounded-full blur-xl animate-pulse" style={{animationDelay: '1s'}}></div>
-        <div className="absolute bottom-32 left-1/3 w-40 h-40 bg-gradient-to-br from-blue-200/20 to-cyan-200/20 rounded-full blur-xl animate-pulse" style={{animationDelay: '2s'}}></div>
-      </div>
-      
       {/* Hero Section */}
       <div ref={heroRef} className="section-container">
         <div className="text-center mb-16">
@@ -95,22 +87,6 @@ const Framework = () => {
               </div>
               <p className="text-gray-600 mt-2">Reports Generated</p>
             </div>
-          </div>
-        </div>
-
-        {/* Interactive Framework Visualization */}
-        <div className="mb-20">
-          <h2 className="heading-section text-center text-cosmic mb-8">
-            Interactive Framework Model
-          </h2>
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-white/20">
-            <InteractiveFrameworkModel 
-              activeSection={activeSection} 
-              onSectionChange={setActiveSection}
-            />
-            <p className="text-center text-gray-600 mt-4 text-sm">
-              🎯 Click on pillars to explore • 💫 Watch the energy flow between elements
-            </p>
           </div>
         </div>
 
@@ -300,7 +276,7 @@ const Framework = () => {
         </div>
 
         {/* CTA Section */}
-        <div className="text-center">
+        <div className="text-center mb-20">
           <div className="card-cosmic max-w-2xl mx-auto">
             <h2 className="heading-subsection text-cosmic mb-4">
               Ready to Transform Your Life?
@@ -310,8 +286,58 @@ const Framework = () => {
               your journey toward a more enriched and balanced life.
             </p>
             <button className="btn-primary">
-              Get Your Personal Report - ₹99
+              Get Your Personal Report - ₹499
             </button>
+          </div>
+        </div>
+
+        {/* Roadmap Section */}
+        <div className="mb-20">
+          <div className="text-center mb-16">
+            <h2 className="heading-section text-cosmic">
+              Your Journey to Self-Discovery
+            </h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-cosmic-purple to-golden-wisdom mx-auto mb-8"></div>
+            <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+              Our comprehensive framework guides you through four essential pillars of life, 
+              all built upon the foundation of deep self-awareness.
+            </p>
+          </div>
+
+          {/* Core Principle */}
+          <div className="card-cosmic max-w-3xl mx-auto mb-16 text-center">
+            <Brain className="w-16 h-16 text-cosmic-purple mx-auto mb-6" />
+            <h3 className="text-2xl font-heading font-semibold text-cosmic mb-4">
+              Core Principle: Know Yourself (SWOT)
+            </h3>
+            <p className="text-gray-700 leading-relaxed">
+              At the center of an enriched life lies deep <strong>self-awareness</strong>. 
+              Through personal SWOT analysis—understanding your Strengths, Weaknesses, 
+              Opportunities, and Threats—you can make conscious choices that align with your true self.
+            </p>
+          </div>
+
+          {/* Roadmap Philosophy */}
+          <div className="bg-gradient-to-r from-cosmic-purple to-mystic-teal rounded-3xl p-8 md:p-12 text-white text-center max-w-5xl mx-auto">
+            <h3 className="text-2xl md:text-3xl font-heading font-semibold mb-6">
+              ✅ The Philosophy: No Need to Sacrifice Anything
+            </h3>
+            
+            <p className="text-lg md:text-xl leading-relaxed mb-8 text-white/90">
+              This model encourages <strong>holistic balance</strong>, where no part of life is neglected. 
+              By knowing yourself first, you can integrate spirituality, health, relationships, 
+              and career without compromising one for the other.
+            </p>
+            
+            <div className="card-cosmic bg-white/10 backdrop-blur-sm border-white/20 inline-block">
+              <p className="text-golden-wisdom font-accent text-lg mb-2">
+                "This framework is a living model"
+              </p>
+              <p className="text-white/90">
+                Shaped by real-life insights and open to refinement as we grow. 
+                It's a tool to reflect, realign, and reimagine your life at every stage.
+              </p>
+            </div>
           </div>
         </div>
       </div>

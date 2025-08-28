@@ -14,7 +14,6 @@ import {
   Target,
   Sparkles
 } from 'lucide-react'
-import CosmicBackground from '../components/three/CosmicBackground'
 
 import SelfAssessmentTool from '../components/interactive/SelfAssessmentTool'
 import EnhancedSelfAssessmentTool from '../components/interactive/EnhancedSelfAssessmentTool'
@@ -39,7 +38,7 @@ const Services = () => {
   const services = [
     {
       icon: FileText,
-      title: "Comprehensive Self-Awareness Report",
+      title: "Complete Self-Awareness Report",
       description: "Deep dive into your personality, strengths, challenges, and life path through detailed numerological analysis.",
       features: [
         "50+ page detailed report",
@@ -47,41 +46,14 @@ const Services = () => {
         "Personality traits breakdown",
         "Career guidance",
         "Relationship compatibility",
-        "Health & wellness insights"
-      ],
-      price: "₹1,999",
-      originalPrice: "₹4,999",
-      popular: true
-    },
-    {
-      icon: Calculator,
-      title: "Quick Numerology Assessment",
-      description: "Essential numerological insights to understand your core personality and immediate guidance for key decisions.",
-      features: [
-        "15-page focused report",
-        "Core numbers analysis",
-        "Personality overview",
-        "Immediate action steps",
-        "Key strength identification"
-      ],
-      price: "₹99",
-      originalPrice: "₹499",
-      popular: false
-    },
-    {
-      icon: TrendingUp,
-      title: "Annual Life Forecast",
-      description: "Year-ahead predictions and guidance based on your personal numerological cycles and planetary influences.",
-      features: [
-        "12-month detailed forecast",
+        "Health & wellness insights",
+        "Annual life forecast",
         "Monthly guidance",
-        "Key dates and opportunities",
-        "Challenge periods navigation",
-        "Goal achievement timeline"
+        "Key dates and opportunities"
       ],
-      price: "₹2,999",
-      originalPrice: "₹6,999",
-      popular: false
+      price: "₹499",
+      originalPrice: "₹1,999",
+      popular: true
     }
   ]
 
@@ -133,9 +105,6 @@ const Services = () => {
 
   return (
     <div className="min-h-screen pt-20 cosmic-bg relative">
-      <WebGLErrorBoundary>
-        <CosmicBackground intensity={0.5} />
-      </WebGLErrorBoundary>
       
       {/* Hero Section */}
       <div ref={heroRef} className="section-container">
@@ -149,7 +118,7 @@ const Services = () => {
           </p>
           
           {/* Trust Indicators */}
-          <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-gray-500">
+          <div className="flex flex-wrap justify-center items-center gap-6 text-sm text-gray-500">
             <div className="flex items-center">
               <Shield className="w-5 h-5 mr-2 text-sage-green" />
               Money-back Guarantee
@@ -166,12 +135,12 @@ const Services = () => {
         </div>
 
         {/* Services Grid */}
-        <div ref={servicesRef} className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
+        {/* <div ref={servicesRef} className="flex justify-center mb-20">
           {services.map((service, index) => (
             <div
               key={index}
-              ref={index === 0 ? hoverRef1 : index === 1 ? hoverRef2 : hoverRef3}
-              className={`card-cosmic relative ${service.popular ? 'ring-2 ring-golden-wisdom' : ''}`}
+              ref={hoverRef1}
+              className={`card-cosmic relative max-w-md w-full ${service.popular ? 'ring-2 ring-golden-wisdom' : ''}`}
             >
               {service.popular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -225,23 +194,11 @@ const Services = () => {
               </button>
             </div>
           ))}
-        </div>
+        </div> */}
 
         {/* Interactive Numerology Visualization */}
       
-        <div className="mb-20">
-          <div className="text-center mb-12">
-            <h2 className="heading-section text-cosmic mb-4">
-              Try Our Quick Self-Assessment
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Get a taste of our personalized insights with this interactive tool that 
-              reveals your primary life focus area.
-            </p>
-          </div>
-          
-          <EnhancedSelfAssessmentTool />
-        </div>
+        
 
         {/* Sample Report Preview */}
         <div className="mb-20">
@@ -252,13 +209,15 @@ const Services = () => {
             <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">
               Get a glimpse of the comprehensive insights waiting for you
             </p>
-            <button
-              className="btn-secondary"
-              onClick={() => setShowSampleReport(!showSampleReport)}
-            >
-              {showSampleReport ? 'Hide' : 'View'} Sample Report
-              <Download className="w-4 h-4 ml-2" />
-            </button>
+            <div className="flex justify-center">
+              <button
+                className="btn-secondary inline-flex items-center"
+                onClick={() => setShowSampleReport(!showSampleReport)}
+              >
+                {showSampleReport ? 'Hide' : 'View'} Sample Report
+                <Download className="w-4 h-4 ml-2" />
+              </button>
+            </div>
           </div>
           
           {showSampleReport && (
@@ -325,36 +284,40 @@ const Services = () => {
               Special Launch Offer
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div>
+              <div className="text-center">
                 <div className="text-6xl font-heading font-bold text-cosmic mb-4">
-                  ₹99
+                  ₹499
                 </div>
-                <div className="text-xl text-gray-400 line-through mb-2">₹499</div>
-                <div className="text-sage-green font-semibold mb-4">80% OFF - Limited Time</div>
+                <div className="text-xl text-gray-400 line-through mb-2">₹1,999</div>
+                <div className="text-sage-green font-semibold mb-4">75% OFF - Limited Time</div>
                 <p className="text-gray-600 mb-6">
                   Get your complete numerology-based self-awareness report at an 
                   unbeatable introductory price.
                 </p>
-                <button className="btn-primary text-lg px-8 py-4">
-                  Get Your Report Now
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </button>
+                <div className="flex justify-center">
+                  <button className="btn-primary text-lg px-8 py-4 inline-flex items-center">
+                    Get Your Report Now
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </button>
+                </div>
               </div>
-              <div className="text-left">
-                <h3 className="font-heading font-semibold text-lg mb-4 text-cosmic">
+              <div className="text-center md:text-left">
+                <h3 className="font-heading font-semibold text-lg mb-4 text-cosmic text-center">
                   What You Get:
                 </h3>
                 <ul className="space-y-3">
                   {[
-                    "15+ page personalized report",
+                    "50+ page personalized report",
                     "Life path and personality analysis",
                     "Career and relationship guidance",
-                    "Actionable improvement strategies",
+                    "Health & wellness insights",
+                    "Annual life forecast",
+                    "Monthly guidance",
                     "Email support for questions",
                     "Money-back guarantee"
                   ].map((item, index) => (
-                    <li key={index} className="flex items-center text-gray-700">
-                      <CheckCircle className="w-5 h-5 mr-3 text-sage-green" />
+                    <li key={index} className="flex items-center text-gray-700 justify-center md:justify-start">
+                      <CheckCircle className="w-5 h-5 mr-3 text-sage-green flex-shrink-0" />
                       {item}
                     </li>
                   ))}
@@ -364,8 +327,26 @@ const Services = () => {
           </div>
         </div>
 
+        <div className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="heading-section text-cosmic mb-4">
+              Try Our Quick Self-Assessment
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+              Get a taste of our personalized insights with this interactive tool that 
+              reveals your primary life focus area.
+            </p>
+          </div>
+          
+          <div className="flex justify-center px-4">
+            <div className="w-full max-w-3xl">
+              <EnhancedSelfAssessmentTool />
+            </div>
+          </div>
+        </div>
+
         {/* Guarantee Section */}
-        <div ref={guaranteeRef} className="text-center">
+        <div ref={guaranteeRef} className="text-center mb-20">
           <div className="card-cosmic max-w-2xl mx-auto">
             <div className="bg-sage-green/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
               <Shield className="w-10 h-10 text-sage-green" />
@@ -383,6 +364,46 @@ const Services = () => {
             </div>
           </div>
         </div>
+
+        {/* Why Choose This Report */}
+        <div className="mt-20 mb-20">
+          <div className="card-cosmic bg-white text-center max-w-4xl mx-auto">
+            <h3 className="text-2xl font-heading font-semibold text-cosmic mb-8">
+              Why Choose This Report?
+            </h3>
+            
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
+              <div className="space-y-4">
+                <div className="flex items-center justify-center space-x-3">
+                  <CheckCircle className="w-6 h-6 text-sage-green flex-shrink-0" />
+                  <span className="font-semibold text-gray-700">Built on modern self-analysis tools</span>
+                </div>
+                <div className="flex items-center justify-center space-x-3">
+                  <CheckCircle className="w-6 h-6 text-sage-green flex-shrink-0" />
+                  <span className="font-semibold text-gray-700">Enhanced with ancient wisdom</span>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-center space-x-3">
+                  <CheckCircle className="w-6 h-6 text-sage-green flex-shrink-0" />
+                  <span className="font-semibold text-gray-700">Perfect for personal growth seekers</span>
+                </div>
+                <div className="flex items-center justify-center space-x-3">
+                  <CheckCircle className="w-6 h-6 text-sage-green flex-shrink-0" />
+                  <span className="font-semibold text-gray-700">Provides career & life clarity</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6 bg-gradient-to-r from-cosmic-purple/5 to-golden-wisdom/5 rounded-xl">
+              <p className="text-xl font-accent text-cosmic italic">
+                "Know yourself. Grow yourself."
+              </p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   )

@@ -1,21 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, Star, Sparkles } from 'lucide-react'
+import { Menu, X, Sparkles } from 'lucide-react'
 import { cn } from '../utils'
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
   const location = useLocation()
-
-  // Handle scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
 
   // Close menu when route changes
   useEffect(() => {
@@ -34,26 +24,28 @@ const Header = () => {
   return (
     <header className={cn(
       'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-      isScrolled 
-        ? 'bg-white/95 backdrop-blur-md shadow-cosmic' 
-        : 'bg-transparent'
+      'bg-white/95 backdrop-blur-md shadow-cosmic'
     )}>
       <nav className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link 
             to="/" 
-            className="flex items-center space-x-2 group"
+            className="flex items-center space-x-3 group"
           >
             <div className="relative">
-              <Star className="w-8 h-8 text-cosmic-purple group-hover:text-golden-wisdom transition-colors duration-300" />
-              <Sparkles className="w-4 h-4 text-golden-wisdom absolute -top-1 -right-1 animate-pulse" />
+              <img 
+                src="/logo.jpg" 
+                alt="Jaydeep Shirote Logo" 
+                className="w-14 h-14 rounded-full object-cover ring-2 ring-cosmic-purple/20 group-hover:ring-golden-wisdom/50 transition-all duration-300"
+              />
+              <Sparkles className="w-5 h-5 text-golden-wisdom absolute -top-1 -right-1 animate-pulse" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-heading font-bold text-cosmic-purple group-hover:text-golden-wisdom transition-colors duration-300">
+              <span className="text-2xl font-heading font-bold text-cosmic-purple group-hover:text-golden-wisdom transition-colors duration-300">
                 Jaydeep Shirote
               </span>
-              <span className="text-xs font-body text-gray-600 -mt-1">
+              <span className="text-sm font-body text-gray-600 -mt-1">
                 Numerology & Self-Awareness
               </span>
             </div>

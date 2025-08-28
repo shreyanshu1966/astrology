@@ -9,7 +9,6 @@ import {
   MessageCircle,
   Star
 } from 'lucide-react'
-import CosmicBackground from '../components/three/CosmicBackground'
 import { useScrollAnimation, useHoverAnimation } from '../hooks/useAnimations'
 
 const Contact = () => {
@@ -79,7 +78,6 @@ const Contact = () => {
   if (isSubmitted) {
     return (
       <div className="min-h-screen pt-20 cosmic-bg relative flex items-center justify-center">
-        <CosmicBackground intensity={0.4} />
         <div className="card-cosmic max-w-lg mx-auto text-center">
           <div className="bg-sage-green/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-sage-green" />
@@ -112,7 +110,6 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen pt-20 cosmic-bg relative">
-      <CosmicBackground intensity={0.5} />
       
       {/* Hero Section */}
       <div ref={heroRef} className="section-container">

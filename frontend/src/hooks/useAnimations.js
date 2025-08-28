@@ -61,11 +61,15 @@ export const useScrollAnimation = (animationType = 'fadeIn', options = {}) => {
     const element = ref.current
     if (!element) return
 
+    // Kill any existing animations on this element
+    gsap.killTweensOf(element)
+
     const defaultOptions = {
       trigger: element,
       start: "top 80%",
       end: "bottom 20%",
       toggleActions: "play none none reverse",
+      refreshPriority: 1,
       ...options
     }
 
@@ -74,7 +78,7 @@ export const useScrollAnimation = (animationType = 'fadeIn', options = {}) => {
     switch (animationType) {
       case 'fadeIn':
         animation = gsap.fromTo(element, 
-          { opacity: 0, y: 50 },
+          { opacity: 0, y: 30 },
           { 
             opacity: 1, 
             y: 0, 
@@ -87,7 +91,7 @@ export const useScrollAnimation = (animationType = 'fadeIn', options = {}) => {
 
       case 'slideInLeft':
         animation = gsap.fromTo(element,
-          { opacity: 0, x: -100 },
+          { opacity: 0, x: -60 },
           {
             opacity: 1,
             x: 0,
@@ -100,7 +104,7 @@ export const useScrollAnimation = (animationType = 'fadeIn', options = {}) => {
 
       case 'slideInRight':
         animation = gsap.fromTo(element,
-          { opacity: 0, x: 100 },
+          { opacity: 0, x: 60 },
           {
             opacity: 1,
             x: 0,
@@ -113,7 +117,7 @@ export const useScrollAnimation = (animationType = 'fadeIn', options = {}) => {
 
       case 'scaleIn':
         animation = gsap.fromTo(element,
-          { opacity: 0, scale: 0.8 },
+          { opacity: 0, scale: 0.9 },
           {
             opacity: 1,
             scale: 1,
@@ -127,12 +131,12 @@ export const useScrollAnimation = (animationType = 'fadeIn', options = {}) => {
       case 'staggerChildren':
         const children = element.children
         animation = gsap.fromTo(children,
-          { opacity: 0, y: 30 },
+          { opacity: 0, y: 20 },
           {
             opacity: 1,
             y: 0,
             duration: 0.6,
-            stagger: 0.2,
+            stagger: 0.15,
             ease: "power2.out",
             scrollTrigger: defaultOptions
           }
@@ -144,9 +148,16 @@ export const useScrollAnimation = (animationType = 'fadeIn', options = {}) => {
     }
 
     return () => {
-      if (animation) animation.kill()
+      if (animation) {
+        animation.kill()
+      }
+      ScrollTrigger.getAll().forEach(trigger => {
+        if (trigger.trigger === element) {
+          trigger.kill()
+        }
+      })
     }
-  }, [animationType, options])
+  }, [animationType, JSON.stringify(options)])
 
   return ref
 }
@@ -158,6 +169,9 @@ export const useCounterAnimation = (endValue, duration = 2, delay = 0) => {
   useEffect(() => {
     const element = ref.current
     if (!element) return
+
+    // Kill any existing animations on this element
+    gsap.killTweensOf(element)
 
     const obj = { value: 0 }
     
@@ -171,12 +185,21 @@ export const useCounterAnimation = (endValue, duration = 2, delay = 0) => {
       },
       scrollTrigger: {
         trigger: element,
-        start: "top 80%",
-        toggleActions: "play none none none"
+        start: "top 85%",
+        end: "bottom 15%",
+        toggleActions: "play none none none",
+        once: true // Only play once to prevent repetition
       }
     })
 
-    return () => animation.kill()
+    return () => {
+      animation.kill()
+      ScrollTrigger.getAll().forEach(trigger => {
+        if (trigger.trigger === element) {
+          trigger.kill()
+        }
+      })
+    }
   }, [endValue, duration, delay])
 
   return ref
@@ -221,42 +244,63 @@ export const useHoverAnimation = (scaleAmount = 1.05, duration = 0.3) => {
 // Hook for text reveal animation
 export const useTextRevealAnimation = (delay = 0) => {
   const ref = useRef()
+  const isInitialized = useRef(false)
 
   useEffect(() => {
     const element = ref.current
-    if (!element) return
+    if (!element || isInitialized.current) return
 
-    // Split text into words/characters for animation
-    const words = element.textContent.split(' ')
+    // Store original text
+    const originalText = element.textContent
+    
+    // Kill any existing animations
+    gsap.killTweensOf(element)
+
+    // Split text into words for animation
+    const words = originalText.split(' ')
     element.innerHTML = words.map(word => 
-      `<span class="inline-block">${word}</span>`
+      `<span class="inline-block overflow-hidden"><span class="inline-block">${word}</span></span>`
     ).join(' ')
 
-    const wordSpans = element.querySelectorAll('span')
+    const wordSpans = element.querySelectorAll('span span')
 
     const animation = gsap.fromTo(wordSpans,
       { 
         opacity: 0, 
-        y: 20,
-        rotationX: -90
+        y: 30,
+        rotationX: -45
       },
       {
         opacity: 1,
         y: 0,
         rotationX: 0,
-        duration: 0.6,
-        stagger: 0.1,
+        duration: 0.8,
+        stagger: 0.08,
         delay,
-        ease: "back.out(1.7)",
+        ease: "power2.out",
         scrollTrigger: {
           trigger: element,
-          start: "top 80%",
-          toggleActions: "play none none none"
+          start: "top 85%",
+          end: "bottom 15%",
+          toggleActions: "play none none none",
+          once: true
         }
       }
     )
 
-    return () => animation.kill()
+    isInitialized.current = true
+
+    return () => {
+      animation.kill()
+      ScrollTrigger.getAll().forEach(trigger => {
+        if (trigger.trigger === element) {
+          trigger.kill()
+        }
+      })
+      // Restore original text on cleanup
+      element.textContent = originalText
+      isInitialized.current = false
+    }
   }, [delay])
 
   return ref
@@ -317,85 +361,47 @@ export const useStaggerRevealAnimation = (selector = '.stagger-item', options = 
     const element = ref.current
     if (!element) return
 
+    // Kill any existing animations on child elements
     const items = element.querySelectorAll(selector)
     if (items.length === 0) return
+
+    gsap.killTweensOf(items)
 
     const defaultOptions = {
       trigger: element,
       start: "top 80%",
       end: "bottom 20%",
       toggleActions: "play none none reverse",
+      refreshPriority: 1,
       ...options
     }
 
     const animation = gsap.fromTo(items,
       { 
         opacity: 0, 
-        y: 60,
-        scale: 0.8,
-        rotationX: -30
+        y: 40,
+        scale: 0.95
       },
       {
         opacity: 1,
         y: 0,
         scale: 1,
-        rotationX: 0,
         duration: 0.8,
-        stagger: 0.2,
-        ease: "back.out(1.7)",
+        stagger: 0.15,
+        ease: "power2.out",
         scrollTrigger: defaultOptions
       }
     )
 
-    return () => animation.kill()
-  }, [selector, options])
-
-  return ref
-}
-
-// Advanced text morphing animation
-export const useTextMorphAnimation = (delay = 0) => {
-  const ref = useRef()
-
-  useEffect(() => {
-    const element = ref.current
-    if (!element) return
-
-    const chars = element.textContent.split('')
-    element.innerHTML = chars.map(char => 
-      `<span class="char" style="display: inline-block;">${char === ' ' ? '&nbsp;' : char}</span>`
-    ).join('')
-
-    const charSpans = element.querySelectorAll('.char')
-
-    const animation = gsap.timeline({
-      scrollTrigger: {
-        trigger: element,
-        start: "top 85%",
-        toggleActions: "play none none reverse"
-      }
-    })
-
-    animation.fromTo(charSpans,
-      { 
-        opacity: 0,
-        y: 100,
-        rotationX: -90,
-        transformOrigin: "50% 50% -50px"
-      },
-      {
-        opacity: 1,
-        y: 0,
-        rotationX: 0,
-        duration: 0.8,
-        stagger: 0.02,
-        delay,
-        ease: "back.out(1.7)"
-      }
-    )
-
-    return () => animation.kill()
-  }, [delay])
+    return () => {
+      animation.kill()
+      ScrollTrigger.getAll().forEach(trigger => {
+        if (trigger.trigger === element) {
+          trigger.kill()
+        }
+      })
+    }
+  }, [selector, JSON.stringify(options)])
 
   return ref
 }
@@ -415,7 +421,8 @@ export const useProgressAnimation = (targetValue = 100, duration = 2) => {
       scrollTrigger: {
         trigger: element,
         start: "top 80%",
-        toggleActions: "play none none reverse"
+        toggleActions: "play none none reverse",
+        once: true
       }
     })
 

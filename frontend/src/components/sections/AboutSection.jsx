@@ -47,9 +47,14 @@ const AboutSection = () => {
         {/* Profile Card */}
         <div className="card-cosmic">
           <div className="text-center mb-8">
-            {/* Placeholder for profile photo */}
-            <div className="w-32 h-32 bg-gradient-to-br from-cosmic-purple to-golden-wisdom rounded-full mx-auto mb-6 flex items-center justify-center">
-              <Sparkles className="w-16 h-16 text-white" />
+            {/* Profile photo */}
+            <div className="w-32 h-32 mx-auto mb-6 relative">
+              <img 
+                src="/jaydeep.jpg" 
+                alt="Jaydeep Shirote - Numerology & Self-Awareness Expert"
+                className="w-full h-full rounded-full object-cover object-center shadow-lg border-4 border-gradient-to-br from-cosmic-purple to-golden-wisdom"
+              />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cosmic-purple/20 to-golden-wisdom/20"></div>
             </div>
             <h3 className="text-2xl font-heading font-bold text-cosmic mb-2">
               Jaydeep Shirote

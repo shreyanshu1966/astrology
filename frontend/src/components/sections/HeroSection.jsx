@@ -134,7 +134,7 @@ const HeroSection = () => {
 
             <div ref={offerRef} className="text-center mt-8">
             <p className="text-golden-wisdom font-accent text-lg sm:text-xl mb-3 font-bold drop-shadow-lg">
-              ✨ Introductory Offer - Just ₹99! ✨
+              ✨ Introductory Offer - Just ₹499! ✨
             </p>
             <p className="text-white/90 text-sm sm:text-base font-medium drop-shadow-md">
               Not a prediction — A self-revelation!
