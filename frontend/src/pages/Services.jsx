@@ -18,11 +18,13 @@ import {
 import SelfAssessmentTool from '../components/interactive/SelfAssessmentTool'
 import EnhancedSelfAssessmentTool from '../components/interactive/EnhancedSelfAssessmentTool'
 import WebGLErrorBoundary from '../components/WebGLErrorBoundary'
+import PaymentForm from '../components/PaymentForm'
 import { useScrollAnimation, useHoverAnimation, useTextRevealAnimation } from '../hooks/useAnimations'
 
 const Services = () => {
   const [selectedPackage, setSelectedPackage] = useState('comprehensive')
   const [showSampleReport, setShowSampleReport] = useState(false)
+  const [showPaymentForm, setShowPaymentForm] = useState(false)
   
   const heroRef = useScrollAnimation('fadeIn')
   const titleRef = useTextRevealAnimation(0.2)
@@ -34,6 +36,19 @@ const Services = () => {
   const hoverRef1 = useHoverAnimation(1.03)
   const hoverRef2 = useHoverAnimation(1.03)
   const hoverRef3 = useHoverAnimation(1.03)
+
+  // Payment handlers
+  const handlePaymentSuccess = (paymentData) => {
+    console.log('Payment successful:', paymentData)
+    setShowPaymentForm(false)
+    // You can add additional success logic here
+    alert('Payment successful! You will receive your report within 24 hours.')
+  }
+
+  const handlePaymentError = (error) => {
+    console.error('Payment error:', error)
+    alert('Payment failed. Please try again or contact support.')
+  }
 
   const services = [
     {
@@ -295,7 +310,10 @@ const Services = () => {
                   unbeatable introductory price.
                 </p>
                 <div className="flex justify-center">
-                  <button className="btn-primary text-lg px-8 py-4 inline-flex items-center">
+                  <button 
+                    onClick={() => setShowPaymentForm(true)}
+                    className="btn-primary text-lg px-8 py-4 inline-flex items-center"
+                  >
                     Get Your Report Now
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </button>
@@ -403,6 +421,28 @@ const Services = () => {
             </div>
           </div>
         </div>
+
+        {/* Payment Modal */}
+        {showPaymentForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="relative max-w-lg w-full">
+              <button
+                onClick={() => setShowPaymentForm(false)}
+                className="absolute -top-4 -right-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 z-10"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              <PaymentForm
+                service="Complete Self-Awareness Report"
+                amount={499}
+                onSuccess={handlePaymentSuccess}
+                onError={handlePaymentError}
+              />
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

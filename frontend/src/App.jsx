@@ -9,6 +9,7 @@ import Contact from './pages/Contact'
 import Testimonials from './pages/Testimonials'
 import FAQ from './pages/FAQ'
 import Terms from './pages/Terms'
+import PaymentSuccess from './pages/PaymentSuccess'
 import useRouteBasedWebGLCleanup from './hooks/useRouteBasedWebGLCleanup'
 import { fontManager } from './utils/fontManager'
 
@@ -28,6 +29,7 @@ function AppRoutes() {
         <Route path="/testimonials" element={<Testimonials />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
       </Routes>
     </Layout>
   )
