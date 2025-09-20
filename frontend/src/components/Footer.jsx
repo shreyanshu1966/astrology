@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Star, Sparkles, Mail, Phone, MapPin, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react'
+import { Star, Sparkles, Mail, Phone, MapPin, Facebook, Instagram, Linkedin } from 'lucide-react'
 
 const Footer = () => {
   const currentYear = new Date().getFullYear()
@@ -20,10 +20,9 @@ const Footer = () => {
   ]
 
   const socialLinks = [
-    { name: 'Facebook', icon: Facebook, url: '#' },
-    { name: 'Instagram', icon: Instagram, url: '#' },
-    { name: 'Twitter', icon: Twitter, url: '#' },
-    { name: 'LinkedIn', icon: Linkedin, url: '#' },
+    { name: 'Facebook', icon: Facebook, url: 'https://www.facebook.com/share/16DEoW2e2J/' },
+    { name: 'Instagram', icon: Instagram, url: 'https://www.instagram.com/jaydeep.shirote?igsh=Y3lwZ2ludHk5Mmli' },
+    { name: 'LinkedIn', icon: Linkedin, url: 'https://www.linkedin.com/in/jaydeepshirote' },
   ]
 
   return (
@@ -162,6 +161,8 @@ const Footer = () => {
                   <a
                     key={social.name}
                     href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-golden-wisdom hover:text-cosmic-purple transition-all duration-300 group"
                     aria-label={social.name}
                   >
