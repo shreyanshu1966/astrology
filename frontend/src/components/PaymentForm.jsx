@@ -6,6 +6,9 @@ const PaymentForm = ({ service, onPaymentSuccess, onPaymentError }) => {
     customerName: '',
     customerEmail: '',
     customerPhone: '',
+    dateOfBirth: '',
+    whatsappNumber: '',
+    reasonForReport: '',
     amount: service?.price || 0,
     serviceType: service?.name || 'Astrology Consultation'
   });
@@ -17,7 +20,7 @@ const PaymentForm = ({ service, onPaymentSuccess, onPaymentError }) => {
     const newErrors = {};
     
     if (!formData.customerName.trim()) {
-      newErrors.customerName = 'Name is required';
+      newErrors.customerName = 'Full name is required';
     }
     
     if (!formData.customerEmail.trim()) {
@@ -30,6 +33,20 @@ const PaymentForm = ({ service, onPaymentSuccess, onPaymentError }) => {
       newErrors.customerPhone = 'Phone number is required';
     } else if (!/^[6-9]\d{9}$/.test(formData.customerPhone)) {
       newErrors.customerPhone = 'Invalid phone number. Enter 10-digit Indian mobile number';
+    }
+    
+    if (!formData.dateOfBirth.trim()) {
+      newErrors.dateOfBirth = 'Date of birth is required';
+    }
+    
+    if (!formData.whatsappNumber.trim()) {
+      newErrors.whatsappNumber = 'WhatsApp number is required';
+    } else if (!/^[6-9]\d{9}$/.test(formData.whatsappNumber)) {
+      newErrors.whatsappNumber = 'Invalid WhatsApp number. Enter 10-digit Indian mobile number';
+    }
+    
+    if (!formData.reasonForReport.trim()) {
+      newErrors.reasonForReport = 'Please specify the reason for seeking a Numerology Report';
     }
     
     if (!formData.amount || formData.amount <= 0) {
@@ -160,7 +177,7 @@ const PaymentForm = ({ service, onPaymentSuccess, onPaymentError }) => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">
-            Full Name *
+            Full Name (As Per Records) *
           </label>
           <input
             type="text"
@@ -171,10 +188,29 @@ const PaymentForm = ({ service, onPaymentSuccess, onPaymentError }) => {
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.customerName ? 'border-red-500' : 'border-gray-300'
             }`}
-            placeholder="Enter your full name"
+            placeholder="Enter your full name as per records"
           />
           {errors.customerName && (
             <p className="mt-1 text-sm text-red-600">{errors.customerName}</p>
+          )}
+        </div>
+        
+        <div>
+          <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 mb-1">
+            Date of Birth *
+          </label>
+          <input
+            type="date"
+            id="dateOfBirth"
+            name="dateOfBirth"
+            value={formData.dateOfBirth}
+            onChange={handleInputChange}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.dateOfBirth ? 'border-red-500' : 'border-gray-300'
+            }`}
+          />
+          {errors.dateOfBirth && (
+            <p className="mt-1 text-sm text-red-600">{errors.dateOfBirth}</p>
           )}
         </div>
         
@@ -216,6 +252,47 @@ const PaymentForm = ({ service, onPaymentSuccess, onPaymentError }) => {
           />
           {errors.customerPhone && (
             <p className="mt-1 text-sm text-red-600">{errors.customerPhone}</p>
+          )}
+        </div>
+        
+        <div>
+          <label htmlFor="whatsappNumber" className="block text-sm font-medium text-gray-700 mb-1">
+            WhatsApp Number *
+          </label>
+          <input
+            type="tel"
+            id="whatsappNumber"
+            name="whatsappNumber"
+            value={formData.whatsappNumber}
+            onChange={handleInputChange}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.whatsappNumber ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder="Enter 10-digit WhatsApp number"
+            maxLength="10"
+          />
+          {errors.whatsappNumber && (
+            <p className="mt-1 text-sm text-red-600">{errors.whatsappNumber}</p>
+          )}
+        </div>
+        
+        <div>
+          <label htmlFor="reasonForReport" className="block text-sm font-medium text-gray-700 mb-1">
+            May I know the specific reason you're seeking a Numerology Report? *
+          </label>
+          <textarea
+            id="reasonForReport"
+            name="reasonForReport"
+            value={formData.reasonForReport}
+            onChange={handleInputChange}
+            rows="3"
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.reasonForReport ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder="Please describe your specific reason for seeking a Numerology Report..."
+          />
+          {errors.reasonForReport && (
+            <p className="mt-1 text-sm text-red-600">{errors.reasonForReport}</p>
           )}
         </div>
         

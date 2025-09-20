@@ -11,14 +11,17 @@ class PaymentController {
         customerName,
         customerEmail,
         customerPhone,
+        dateOfBirth,
+        whatsappNumber,
+        reasonForReport,
         serviceType = 'Astrology Consultation'
       } = req.body;
 
       // Validate required fields
-      if (!amount || !customerName || !customerEmail || !customerPhone) {
+      if (!amount || !customerName || !customerEmail || !customerPhone || !dateOfBirth || !whatsappNumber || !reasonForReport) {
         return res.status(400).json({
           success: false,
-          message: 'Missing required fields: amount, customerName, customerEmail, customerPhone'
+          message: 'Missing required fields: amount, customerName, customerEmail, customerPhone, dateOfBirth, whatsappNumber, reasonForReport'
         });
       }
 
@@ -48,6 +51,23 @@ class PaymentController {
         });
       }
 
+      // Validate WhatsApp number format (10 digits)
+      if (!phoneRegex.test(whatsappNumber)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid WhatsApp number. Please provide a valid 10-digit Indian mobile number'
+        });
+      }
+
+      // Validate date of birth
+      const dobDate = new Date(dateOfBirth);
+      if (isNaN(dobDate.getTime()) || dobDate > new Date()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid date of birth'
+        });
+      }
+
       const orderId = paymentService.generateOrderId();
 
       const orderData = {
@@ -56,9 +76,12 @@ class PaymentController {
         customerDetails: {
           customerName,
           customerEmail,
-          customerPhone: '+91' + customerPhone
+          customerPhone: '+91' + customerPhone,
+          dateOfBirth,
+          whatsappNumber: '+91' + whatsappNumber,
+          reasonForReport
         },
-        orderNote: `Payment for ${serviceType}`
+        orderNote: `Payment for ${serviceType} - DOB: ${dateOfBirth}`
       };
 
       const result = await paymentService.createOrder(orderData);

@@ -55,6 +55,10 @@ class PaymentService {
         order_meta: {
           return_url: process.env.FRONTEND_URL + '/payment/success?order_id={order_id}',
           notify_url: process.env.BACKEND_URL + '/api/payment/webhook',
+          date_of_birth: customerDetails.dateOfBirth || '',
+          whatsapp_number: customerDetails.whatsappNumber || '',
+          reason_for_report: customerDetails.reasonForReport || '',
+          service_type: orderNote.includes('Payment for') ? orderNote.split('Payment for ')[1] : 'Astrology Service'
         }
       };
 
