@@ -1,4 +1,5 @@
 const paymentService = require('../services/paymentService');
+const emailService = require('../services/emailService');
 
 class PaymentController {
   /**
@@ -85,6 +86,24 @@ class PaymentController {
       };
 
       const result = await paymentService.createOrder(orderData);
+
+      // Send order confirmation email
+      try {
+        await emailService.sendOrderConfirmation({
+          customerName,
+          customerEmail,
+          orderId: result.data.order_id,
+          orderAmount: amount,
+          serviceType,
+          dateOfBirth,
+          whatsappNumber: '+91' + whatsappNumber,
+          reasonForReport
+        });
+        console.log('Order confirmation email sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send order confirmation email:', emailError.message);
+        // Don't fail the order creation if email fails
+      }
 
       res.status(200).json({
         success: true,
