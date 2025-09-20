@@ -179,13 +179,13 @@ CASHFREE_WEBHOOK_SECRET = YOUR_SECURE_WEBHOOK_SECRET
 ## 🔧 Step 4: Verify Deployment Configuration
 
 ### 4.1 Check vercel.json Configuration
-Your `vercel.json` is already configured correctly:
+Your `vercel.json` is configured correctly with specific Node.js runtime:
 
 ```json
 {
   "functions": {
     "api/**/*.js": {
-      "runtime": "@vercel/node"
+      "runtime": "@vercel/node@20.x"
     }
   },
   "rewrites": [
@@ -203,6 +203,8 @@ Your `vercel.json` is already configured correctly:
   "installCommand": "cd frontend && npm install"
 }
 ```
+
+**Note**: The specific Node.js version `@vercel/node@20.x` ensures compatibility and avoids runtime errors.
 
 ### 4.2 Test API Endpoints
 After deployment, your API endpoints will be available at:
@@ -369,7 +371,23 @@ When ready for production:
 
 ### Common Issues and Solutions
 
-**1. Environment Variable References Secret Error**
+**1. Function Runtime Version Error**
+```
+Error: Function Runtimes must have a valid version, for example `now-php@1.0.0`.
+```
+
+**Solution**: Update your `vercel.json` to specify the Node.js runtime version:
+```json
+{
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "@vercel/node@20.x"
+    }
+  }
+}
+```
+
+**2. Environment Variable References Secret Error**
 ```
 Error: Environment Variable "CASHFREE_APP_ID" references Secret "cashfree_app_id", which does not exist.
 ```
