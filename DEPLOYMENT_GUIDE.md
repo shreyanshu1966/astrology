@@ -179,32 +179,38 @@ CASHFREE_WEBHOOK_SECRET = YOUR_SECURE_WEBHOOK_SECRET
 ## 🔧 Step 4: Verify Deployment Configuration
 
 ### 4.1 Check vercel.json Configuration
-Your `vercel.json` is configured correctly with specific Node.js runtime:
+Your `vercel.json` is configured with the legacy builds format for better compatibility:
 
 ```json
 {
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "@vercel/node@20.x"
-    }
-  },
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
     },
     {
-      "source": "/(.*)",
-      "destination": "/frontend/$1"
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
     }
   ],
-  "buildCommand": "cd frontend && npm run build",
-  "outputDirectory": "frontend/dist",
-  "installCommand": "cd frontend && npm install"
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/$1"
+    }
+  ]
 }
 ```
 
-**Note**: The specific Node.js version `@vercel/node@20.x` ensures compatibility and avoids runtime errors.
+**Note**: This configuration uses Vercel's legacy builds format which has better compatibility with complex project structures.
 
 ### 4.2 Test API Endpoints
 After deployment, your API endpoints will be available at:
