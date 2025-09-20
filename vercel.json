@@ -16,11 +16,5 @@
   ],
   "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/dist",
-  "installCommand": "cd frontend && npm install",
-  "env": {
-    "CASHFREE_APP_ID": "@cashfree_app_id",
-    "CASHFREE_SECRET_KEY": "@cashfree_secret_key",
-    "CASHFREE_ENVIRONMENT": "@cashfree_environment",
-    "CASHFREE_WEBHOOK_SECRET": "@cashfree_webhook_secret"
-  }
+  "installCommand": "cd frontend && npm install"
 }
