@@ -1,8 +1,17 @@
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 // CORS headers
+const getCorsOrigin = () => {
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}`
+      : 'https://astrology-website.vercel.app';
+  }
+  return 'http://localhost:3001';
+};
+
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': getCorsOrigin(),
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-webhook-signature, x-webhook-timestamp',
 };

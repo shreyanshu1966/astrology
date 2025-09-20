@@ -1,5 +1,5 @@
-const { Cashfree } = require('cashfree-pg');
-const crypto = require('crypto');
+import { Cashfree } from 'cashfree-pg';
+import crypto from 'crypto';
 
 // Initialize Cashfree with environment variables
 const initializeCashfree = () => {
@@ -11,8 +11,17 @@ const initializeCashfree = () => {
 };
 
 // CORS headers
+const getCorsOrigin = () => {
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}`
+      : 'https://astrology-website.vercel.app';
+  }
+  return 'http://localhost:3001';
+};
+
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': getCorsOrigin(),
   'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };

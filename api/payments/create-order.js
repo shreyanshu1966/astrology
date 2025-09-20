@@ -1,4 +1,4 @@
-const { Cashfree } = require('cashfree-pg');
+import { Cashfree } from 'cashfree-pg';
 
 // Initialize Cashfree with environment variables
 const initializeCashfree = () => {
@@ -10,8 +10,17 @@ const initializeCashfree = () => {
 };
 
 // CORS headers
+const getCorsOrigin = () => {
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}`
+      : 'https://astrology-website.vercel.app';
+  }
+  return 'http://localhost:3001';
+};
+
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': getCorsOrigin(),
   'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
@@ -45,6 +54,11 @@ export default async function handler(req, res) {
     // Generate unique order ID
     const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
+    // Get the base URL for production
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}`
+      : 'https://astrology-website.vercel.app';
+
     // Create order request
     const orderRequest = {
       order_id: orderId,
@@ -57,8 +71,8 @@ export default async function handler(req, res) {
         customer_phone: customerDetails.phone,
       },
       order_meta: {
-        return_url: `${process.env.VERCEL_URL || 'http://localhost:3000'}/payment-success?order_id={order_id}`,
-        notify_url: `${process.env.VERCEL_URL || 'http://localhost:3000'}/api/payments/webhook`,
+        return_url: `${baseUrl}/payment-success?order_id={order_id}`,
+        notify_url: `${baseUrl}/api/payments/webhook`,
         payment_methods: 'cc,dc,nb,upi,paylater,emi',
       },
       order_note: orderNote,
