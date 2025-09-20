@@ -81,7 +81,7 @@ class PaymentController {
           whatsappNumber: '+91' + whatsappNumber,
           reasonForReport
         },
-        orderNote: `Payment for ${serviceType} - DOB: ${dateOfBirth}`
+        orderNote: `Payment for ${serviceType} - DOB: ${dateOfBirth} - WhatsApp: +91${whatsappNumber} - Reason: ${reasonForReport.length > 50 ? reasonForReport.substring(0, 50) + '...' : reasonForReport}`
       };
 
       const result = await paymentService.createOrder(orderData);
