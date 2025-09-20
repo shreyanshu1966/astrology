@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import ScrollToTop from './components/ScrollToTop'
+import ErrorBoundary from './components/ErrorBoundary'
 import Home from './pages/Home'
 import Framework from './pages/Framework'
 import Services from './pages/Services'
@@ -29,7 +30,11 @@ function AppRoutes() {
         <Route path="/testimonials" element={<Testimonials />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/terms" element={<Terms />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment/success" element={
+          <ErrorBoundary>
+            <PaymentSuccess />
+          </ErrorBoundary>
+        } />
       </Routes>
     </Layout>
   )

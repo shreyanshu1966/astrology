@@ -1,204 +1,264 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 
-const PaymentForm = ({ service, amount, onSuccess, onError }) => {
-  const [loading, setLoading] = useState(false);
-  const [customerDetails, setCustomerDetails] = useState({
-    name: '',
-    email: '',
-    phone: ''
+const PaymentForm = ({ service, onPaymentSuccess, onPaymentError }) => {
+  const [formData, setFormData] = useState({
+    customerName: '',
+    customerEmail: '',
+    customerPhone: '',
+    amount: service?.price || 0,
+    serviceType: service?.name || 'Astrology Consultation'
   });
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.customerName.trim()) {
+      newErrors.customerName = 'Name is required';
+    }
+    
+    if (!formData.customerEmail.trim()) {
+      newErrors.customerEmail = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.customerEmail)) {
+      newErrors.customerEmail = 'Invalid email format';
+    }
+    
+    if (!formData.customerPhone.trim()) {
+      newErrors.customerPhone = 'Phone number is required';
+    } else if (!/^[6-9]\d{9}$/.test(formData.customerPhone)) {
+      newErrors.customerPhone = 'Invalid phone number. Enter 10-digit Indian mobile number';
+    }
+    
+    if (!formData.amount || formData.amount <= 0) {
+      newErrors.amount = 'Invalid amount';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setCustomerDetails(prev => ({
+    setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
-  const validateForm = () => {
-    const { name, email, phone } = customerDetails;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     
-    if (!name.trim()) {
-      alert('Please enter your name');
-      return false;
+    if (!validateForm()) {
+      return;
     }
     
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      alert('Please enter a valid email address');
-      return false;
-    }
-    
-    if (!phone.trim() || !/^\d{10}$/.test(phone.replace(/[^0-9]/g, ''))) {
-      alert('Please enter a valid 10-digit phone number');
-      return false;
-    }
-    
-    return true;
-  };
-
-  const initiatePayment = async () => {
-    if (!validateForm()) return;
-
-    setLoading(true);
+    setIsLoading(true);
     
     try {
       // Create payment order
-      const response = await fetch('/api/payments/create-order', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}/api/payment/create-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          amount: amount,
-          currency: 'INR',
-          customerDetails,
-          orderNote: `Payment for ${service}`
-        })
+        body: JSON.stringify(formData)
       });
-
-      const orderData = await response.json();
-
-      if (!orderData.success) {
-        throw new Error(orderData.error || 'Failed to create payment order');
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.message || 'Failed to create payment order');
       }
-
-      // Load Cashfree SDK
-      const cashfree = window.Cashfree({
-        mode: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'
-      });
-
-      // Configure checkout options
-      const checkoutOptions = {
-        paymentSessionId: orderData.payment_session_id,
-        returnUrl: `${window.location.origin}/payment-success?order_id=${orderData.order_id}`,
-        notifyUrl: `${window.location.origin}/api/payments/webhook`,
-        theme: {
-          color: '#6366f1' // Customize theme color
-        }
-      };
-
-      // Open Cashfree checkout
-      cashfree.checkout(checkoutOptions).then((result) => {
-        console.log('Payment result:', result);
-        
-        if (result.error) {
-          console.error('Payment error:', result.error);
-          onError?.(result.error);
-        } else if (result.redirect) {
-          console.log('Redirecting to:', result.redirect);
-          // Let the redirect happen naturally
-        } else {
-          // Payment completed, verify the status
-          verifyPayment(orderData.order_id);
-        }
-      }).catch((error) => {
-        console.error('Cashfree checkout error:', error);
-        onError?.(error);
-      });
-
+      
+      // Initialize Cashfree payment
+      await initiateCashfreePayment(result.data);
+      
     } catch (error) {
-      console.error('Payment initiation error:', error);
-      onError?.(error);
+      console.error('Payment error:', error);
+      onPaymentError?.(error.message || 'Payment failed. Please try again.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const verifyPayment = async (orderId) => {
+  const initiateCashfreePayment = async (orderData) => {
     try {
-      const response = await fetch(`/api/payments/verify-payment?order_id=${orderId}`);
-      const result = await response.json();
-      
-      if (result.success && result.payment_status === 'SUCCESS') {
-        onSuccess?.(result);
-      } else {
-        onError?.('Payment verification failed');
+      // Load Cashfree SDK if not already loaded
+      if (!window.Cashfree) {
+        await loadCashfreeSDK();
       }
+      
+      const cashfree = window.Cashfree({
+        mode: 'sandbox' // Change to 'production' for live environment
+      });
+      
+      const checkoutOptions = {
+        paymentSessionId: orderData.paymentSessionId,
+        returnUrl: `${window.location.origin}/payment/success?order_id=${orderData.orderId}`,
+      };
+      
+      const result = await cashfree.checkout(checkoutOptions);
+      
+      if (result.error) {
+        throw new Error(result.error.message || 'Payment failed');
+      }
+      
+      // Payment successful
+      onPaymentSuccess?.(result.paymentDetails);
+      
     } catch (error) {
-      console.error('Payment verification error:', error);
-      onError?.(error);
+      console.error('Cashfree payment error:', error);
+      onPaymentError?.(error.message || 'Payment initialization failed');
     }
+  };
+
+  const loadCashfreeSDK = () => {
+    return new Promise((resolve, reject) => {
+      if (window.Cashfree) {
+        resolve();
+        return;
+      }
+      
+      const script = document.createElement('script');
+      script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('Failed to load Cashfree SDK'));
+      document.head.appendChild(script);
+    });
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
-      <h3 className="text-xl font-semibold mb-4 text-gray-800">
-        Payment Details
-      </h3>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg"
+    >
+      <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
+        Complete Your Payment
+      </h2>
       
-      <div className="mb-4 p-3 bg-indigo-50 rounded-lg">
-        <p className="text-sm text-gray-600">Service: <span className="font-medium">{service}</span></p>
-        <p className="text-lg font-bold text-indigo-600">Amount: ₹{amount}</p>
-      </div>
-
-      <form onSubmit={(e) => { e.preventDefault(); initiatePayment(); }} className="space-y-4">
+      {service && (
+        <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+          <h3 className="font-semibold text-blue-800">{service.name}</h3>
+          <p className="text-blue-600">₹{service.price}</p>
+        </div>
+      )}
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">
             Full Name *
           </label>
           <input
             type="text"
-            id="name"
-            name="name"
-            value={customerDetails.name}
+            id="customerName"
+            name="customerName"
+            value={formData.customerName}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.customerName ? 'border-red-500' : 'border-gray-300'
+            }`}
             placeholder="Enter your full name"
-            required
           />
+          {errors.customerName && (
+            <p className="mt-1 text-sm text-red-600">{errors.customerName}</p>
+          )}
         </div>
-
+        
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="customerEmail" className="block text-sm font-medium text-gray-700 mb-1">
             Email Address *
           </label>
           <input
             type="email"
-            id="email"
-            name="email"
-            value={customerDetails.email}
+            id="customerEmail"
+            name="customerEmail"
+            value={formData.customerEmail}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            placeholder="Enter your email"
-            required
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.customerEmail ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder="Enter your email address"
           />
+          {errors.customerEmail && (
+            <p className="mt-1 text-sm text-red-600">{errors.customerEmail}</p>
+          )}
         </div>
-
+        
         <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="customerPhone" className="block text-sm font-medium text-gray-700 mb-1">
             Phone Number *
           </label>
           <input
             type="tel"
-            id="phone"
-            name="phone"
-            value={customerDetails.phone}
+            id="customerPhone"
+            name="customerPhone"
+            value={formData.customerPhone}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            placeholder="Enter your phone number"
-            required
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.customerPhone ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder="Enter 10-digit mobile number"
+            maxLength="10"
           />
+          {errors.customerPhone && (
+            <p className="mt-1 text-sm text-red-600">{errors.customerPhone}</p>
+          )}
         </div>
-
+        
+        <div>
+          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
+            Amount (₹) *
+          </label>
+          <input
+            type="number"
+            id="amount"
+            name="amount"
+            value={formData.amount}
+            onChange={handleInputChange}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.amount ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder="Enter amount"
+            min="1"
+            max="100000"
+          />
+          {errors.amount && (
+            <p className="mt-1 text-sm text-red-600">{errors.amount}</p>
+          )}
+        </div>
+        
         <button
           type="submit"
-          disabled={loading}
-          className={`w-full py-3 px-4 rounded-md font-medium text-white transition-colors ${
-            loading 
-              ? 'bg-gray-400 cursor-not-allowed' 
-              : 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+          disabled={isLoading}
+          className={`w-full py-3 px-4 rounded-md text-white font-medium transition-colors ${
+            isLoading
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500'
           }`}
         >
-          {loading ? 'Processing...' : `Pay ₹${amount}`}
+          {isLoading ? 'Processing...' : `Pay ₹${formData.amount}`}
         </button>
       </form>
-
-      <div className="mt-4 text-xs text-gray-500 text-center">
-        <p>🔒 Secure payment powered by Cashfree</p>
-        <p>Your payment information is encrypted and secure</p>
+      
+      <div className="mt-4 text-center">
+        <p className="text-xs text-gray-500">
+          Secured by Cashfree Payments
+        </p>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

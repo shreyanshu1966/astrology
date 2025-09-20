@@ -17,8 +17,8 @@ import {
 
 import SelfAssessmentTool from '../components/interactive/SelfAssessmentTool'
 import EnhancedSelfAssessmentTool from '../components/interactive/EnhancedSelfAssessmentTool'
-import WebGLErrorBoundary from '../components/WebGLErrorBoundary'
 import PaymentForm from '../components/PaymentForm'
+import WebGLErrorBoundary from '../components/WebGLErrorBoundary'
 import { useScrollAnimation, useHoverAnimation, useTextRevealAnimation } from '../hooks/useAnimations'
 
 const Services = () => {
@@ -37,19 +37,6 @@ const Services = () => {
   const hoverRef2 = useHoverAnimation(1.03)
   const hoverRef3 = useHoverAnimation(1.03)
 
-  // Payment handlers
-  const handlePaymentSuccess = (paymentData) => {
-    console.log('Payment successful:', paymentData)
-    setShowPaymentForm(false)
-    // You can add additional success logic here
-    alert('Payment successful! You will receive your report within 24 hours.')
-  }
-
-  const handlePaymentError = (error) => {
-    console.error('Payment error:', error)
-    alert('Payment failed. Please try again or contact support.')
-  }
-
   const services = [
     {
       icon: FileText,
@@ -66,11 +53,30 @@ const Services = () => {
         "Monthly guidance",
         "Key dates and opportunities"
       ],
-      price: "₹499",
-      originalPrice: "₹1,999",
-      popular: true
+      price: 499,
+      originalPrice: 1999,
+      displayPrice: "₹499",
+      displayOriginalPrice: "₹1,999",
+      popular: true,
+      name: "Complete Self-Awareness Report"
     }
   ]
+
+  const handlePaymentSuccess = (paymentDetails) => {
+    console.log('Payment successful:', paymentDetails)
+    setShowPaymentForm(false)
+    // Here you can redirect to success page or show success message
+    alert('Payment successful! Your report will be delivered within 24-48 hours.')
+  }
+
+  const handlePaymentError = (error) => {
+    console.error('Payment failed:', error)
+    alert(`Payment failed: ${error}`)
+  }
+
+  const handleBuyNow = () => {
+    setShowPaymentForm(true)
+  }
 
   const reportSections = [
     {
@@ -300,10 +306,10 @@ const Services = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="text-center">
-                <div className="text-6xl font-heading font-bold text-cosmic mb-4">
-                  ₹499
-                </div>
-                <div className="text-xl text-gray-400 line-through mb-2">₹1,999</div>
+                  <div className="text-6xl font-heading font-bold text-cosmic mb-4">
+                    ₹499
+                  </div>
+                  <div className="text-xl text-gray-400 line-through mb-2">₹1,999</div>
                 <div className="text-sage-green font-semibold mb-4">75% OFF - Limited Time</div>
                 <p className="text-gray-600 mb-6">
                   Get your complete numerology-based self-awareness report at an 
@@ -311,7 +317,7 @@ const Services = () => {
                 </p>
                 <div className="flex justify-center">
                   <button 
-                    onClick={() => setShowPaymentForm(true)}
+                    onClick={handleBuyNow}
                     className="btn-primary text-lg px-8 py-4 inline-flex items-center"
                   >
                     Get Your Report Now
@@ -422,23 +428,22 @@ const Services = () => {
           </div>
         </div>
 
-        {/* Payment Modal */}
+        {/* Payment Form Modal */}
         {showPaymentForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="relative max-w-lg w-full">
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="relative bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
               <button
                 onClick={() => setShowPaymentForm(false)}
-                className="absolute -top-4 -right-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 z-10"
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
               <PaymentForm
-                service="Complete Self-Awareness Report"
-                amount={499}
-                onSuccess={handlePaymentSuccess}
-                onError={handlePaymentError}
+                service={services[0]}
+                onPaymentSuccess={handlePaymentSuccess}
+                onPaymentError={handlePaymentError}
               />
             </div>
           </div>

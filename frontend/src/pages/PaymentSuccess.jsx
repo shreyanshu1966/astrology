@@ -1,196 +1,240 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import Layout from '../components/Layout';
+import { useSearchParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { CheckCircle, XCircle, Clock, ArrowLeft } from 'lucide-react';
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
-  const [paymentData, setPaymentData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [paymentStatus, setPaymentStatus] = useState('loading');
+  const [paymentDetails, setPaymentDetails] = useState(null);
   const [error, setError] = useState(null);
-
+  
   const orderId = searchParams.get('order_id');
 
   useEffect(() => {
     if (orderId) {
-      verifyPayment(orderId);
+      fetchPaymentStatus();
     } else {
+      setPaymentStatus('error');
       setError('No order ID found');
-      setLoading(false);
     }
   }, [orderId]);
 
-  const verifyPayment = async (orderIdToVerify) => {
+  const getPaymentMethodDisplay = (paymentMethod) => {
+    if (!paymentMethod) return 'N/A';
+    
+    if (typeof paymentMethod === 'string') {
+      return paymentMethod;
+    }
+    
+    if (typeof paymentMethod === 'object') {
+      // Handle different payment method types
+      if (paymentMethod.netbanking) {
+        return `Net Banking (${paymentMethod.netbanking})`;
+      }
+      if (paymentMethod.card) {
+        return `Card (${paymentMethod.card})`;
+      }
+      if (paymentMethod.upi) {
+        return `UPI (${paymentMethod.upi})`;
+      }
+      if (paymentMethod.wallet) {
+        return `Wallet (${paymentMethod.wallet})`;
+      }
+      // Fallback to first available key
+      const firstKey = Object.keys(paymentMethod)[0];
+      return firstKey ? `${firstKey.charAt(0).toUpperCase() + firstKey.slice(1)}` : 'N/A';
+    }
+    
+    return 'N/A';
+  };
+
+  const fetchPaymentStatus = async () => {
     try {
-      const response = await fetch(`/api/payments/verify-payment?order_id=${orderIdToVerify}`);
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}/api/payment/status/${orderId}`
+      );
+      
       const result = await response.json();
       
-      if (result.success) {
-        setPaymentData(result);
+      if (result.success && result.data && result.data.length > 0) {
+        const payment = result.data[0];
+        setPaymentDetails(payment);
+        
+        // Determine status based on payment data
+        switch (payment.payment_status) {
+          case 'SUCCESS':
+            setPaymentStatus('success');
+            break;
+          case 'FAILED':
+          case 'CANCELLED':
+            setPaymentStatus('failed');
+            break;
+          case 'PENDING':
+          case 'USER_DROPPED':
+            setPaymentStatus('pending');
+            break;
+          default:
+            setPaymentStatus('unknown');
+        }
       } else {
-        setError('Payment verification failed');
+        setPaymentStatus('pending');
+        setError('Payment verification in progress');
       }
-    } catch (err) {
-      console.error('Payment verification error:', err);
-      setError('Failed to verify payment');
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching payment status:', error);
+      setPaymentStatus('error');
+      setError('Failed to verify payment status');
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
+  const getStatusIcon = () => {
+    switch (paymentStatus) {
       case 'success':
-        return 'text-green-600 bg-green-100';
+        return <CheckCircle className="w-16 h-16 text-green-500" />;
       case 'failed':
-        return 'text-red-600 bg-red-100';
+        return <XCircle className="w-16 h-16 text-red-500" />;
       case 'pending':
-        return 'text-yellow-600 bg-yellow-100';
+        return <Clock className="w-16 h-16 text-yellow-500" />;
+      case 'loading':
+        return (
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        );
       default:
-        return 'text-gray-600 bg-gray-100';
+        return <XCircle className="w-16 h-16 text-gray-500" />;
     }
   };
 
-  const getStatusIcon = (status) => {
-    switch (status?.toLowerCase()) {
+  const getStatusTitle = () => {
+    switch (paymentStatus) {
       case 'success':
-        return '✅';
+        return 'Payment Successful!';
       case 'failed':
-        return '❌';
+        return 'Payment Failed';
       case 'pending':
-        return '⏳';
+        return 'Payment Pending';
+      case 'loading':
+        return 'Verifying Payment...';
       default:
-        return '❓';
+        return 'Payment Status Unknown';
     }
   };
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Verifying your payment...</p>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+  const getStatusMessage = () => {
+    switch (paymentStatus) {
+      case 'success':
+        return 'Your payment has been processed successfully. Thank you for choosing our astrology services!';
+      case 'failed':
+        return 'Your payment could not be processed. Please try again or contact support.';
+      case 'pending':
+        return 'Your payment is being processed. Please wait for confirmation.';
+      case 'loading':
+        return 'Please wait while we verify your payment status...';
+      default:
+        return error || 'Unable to determine payment status. Please contact support.';
+    }
+  };
 
-  if (error) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg text-center">
-            <div className="text-6xl mb-4">❌</div>
-            <h1 className="text-2xl font-bold text-red-600 mb-4">Payment Verification Failed</h1>
-            <p className="text-gray-600 mb-6">{error}</p>
-            <button
-              onClick={() => window.location.href = '/services'}
-              className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors"
-            >
-              Back to Services
-            </button>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+  const getStatusColor = () => {
+    switch (paymentStatus) {
+      case 'success':
+        return 'text-green-600';
+      case 'failed':
+        return 'text-red-600';
+      case 'pending':
+        return 'text-yellow-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
 
   return (
-    <Layout>
-      <div className="min-h-screen py-12">
-        <div className="max-w-2xl mx-auto px-4">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            {/* Status Header */}
-            <div className="text-center mb-8">
-              <div className="text-6xl mb-4">
-                {getStatusIcon(paymentData?.payment_status)}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-md w-full bg-white rounded-lg shadow-xl p-8 text-center"
+      >
+        <div className="flex justify-center mb-6">
+          {getStatusIcon()}
+        </div>
+        
+        <h1 className={`text-2xl font-bold mb-4 ${getStatusColor()}`}>
+          {getStatusTitle()}
+        </h1>
+        
+        <p className="text-gray-600 mb-6">
+          {getStatusMessage()}
+        </p>
+        
+        {orderId && (
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <p className="text-sm text-gray-500 mb-1">Order ID</p>
+            <p className="font-mono text-sm text-gray-800">{orderId}</p>
+          </div>
+        )}
+        
+        {paymentDetails && (
+          <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+            <h3 className="font-semibold text-gray-800 mb-2">Payment Details</h3>
+            <div className="space-y-1 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Amount:</span>
+                <span className="font-medium">₹{paymentDetails.payment_amount || 'N/A'}</span>
               </div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                {paymentData?.payment_status === 'SUCCESS' ? 'Payment Successful!' : 'Payment Status'}
-              </h1>
-              <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(paymentData?.payment_status)}`}>
-                Status: {paymentData?.payment_status || 'Unknown'}
+              <div className="flex justify-between">
+                <span className="text-gray-600">Method:</span>
+                <span className="font-medium">
+                  {getPaymentMethodDisplay(paymentDetails.payment_method)}
+                </span>
               </div>
-            </div>
-
-            {/* Payment Details */}
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Payment Details</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Order ID</p>
-                  <p className="font-mono text-sm text-gray-800">{paymentData?.order_id}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Payment ID</p>
-                  <p className="font-mono text-sm text-gray-800">{paymentData?.cf_payment_id || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Amount</p>
-                  <p className="text-lg font-bold text-indigo-600">
-                    ₹{paymentData?.payment_amount || paymentData?.order_amount}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Payment Method</p>
-                  <p className="text-gray-800">{paymentData?.payment_method || 'N/A'}</p>
-                </div>
-                {paymentData?.payment_time && (
-                  <div className="md:col-span-2">
-                    <p className="text-sm text-gray-600">Payment Time</p>
-                    <p className="text-gray-800">
-                      {new Date(paymentData.payment_time).toLocaleString()}
-                    </p>
-                  </div>
-                )}
+              <div className="flex justify-between">
+                <span className="text-gray-600">Transaction ID:</span>
+                <span className="font-mono text-xs">
+                  {paymentDetails.cf_payment_id || paymentDetails.payment_id || 'N/A'}
+                </span>
               </div>
-            </div>
-
-            {/* Success Actions */}
-            {paymentData?.payment_status === 'SUCCESS' && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
-                <h3 className="text-lg font-semibold text-green-800 mb-2">What's Next?</h3>
-                <ul className="text-green-700 space-y-2">
-                  <li>✅ Payment confirmed and recorded</li>
-                  <li>✅ Confirmation email will be sent shortly</li>
-                  <li>✅ Our team will contact you within 24 hours</li>
-                  <li>✅ Service delivery will begin as scheduled</li>
-                </ul>
-              </div>
-            )}
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => window.location.href = '/'}
-                className="bg-gray-600 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-colors"
-              >
-                Back to Home
-              </button>
-              <button
-                onClick={() => window.location.href = '/services'}
-                className="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition-colors"
-              >
-                View More Services
-              </button>
-              <button
-                onClick={() => window.location.href = '/contact'}
-                className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors"
-              >
-                Contact Support
-              </button>
-            </div>
-
-            {/* Receipt Note */}
-            <div className="mt-8 text-center text-sm text-gray-500">
-              <p>📧 A detailed receipt has been sent to your email address</p>
-              <p>For any queries, please contact our support team</p>
             </div>
           </div>
+        )}
+        
+        <div className="space-y-3">
+          {paymentStatus === 'pending' && (
+            <button
+              onClick={fetchPaymentStatus}
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Check Status Again
+            </button>
+          )}
+          
+          <Link
+            to="/"
+            className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </Link>
         </div>
-      </div>
-    </Layout>
+        
+        {paymentStatus === 'success' && (
+          <div className="mt-6 p-4 bg-green-50 rounded-lg">
+            <p className="text-sm text-green-700">
+              A confirmation email has been sent to your registered email address.
+            </p>
+          </div>
+        )}
+        
+        {(paymentStatus === 'failed' || paymentStatus === 'error') && (
+          <div className="mt-6 p-4 bg-red-50 rounded-lg">
+            <p className="text-sm text-red-700">
+              Need help? Contact our support team at support@astrology.com
+            </p>
+          </div>
+        )}
+      </motion.div>
+    </div>
   );
 };
 
