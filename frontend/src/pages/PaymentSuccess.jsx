@@ -20,6 +20,29 @@ const PaymentSuccess = () => {
     }
   }, [orderId]);
 
+  // Auto-refresh for pending payments
+  useEffect(() => {
+    let interval;
+    if (paymentStatus === 'pending') {
+      // Refresh every 5 seconds for pending payments, max 12 times (1 minute)
+      let refreshCount = 0;
+      interval = setInterval(() => {
+        refreshCount++;
+        if (refreshCount < 12) {
+          fetchPaymentStatus();
+        } else {
+          clearInterval(interval);
+          // After 1 minute, if still pending, suggest manual refresh
+          setError('Payment verification is taking longer than expected. Please refresh the page or contact support.');
+        }
+      }, 5000);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [paymentStatus]);
+
   const getPaymentMethodDisplay = (paymentMethod) => {
     if (!paymentMethod) return 'N/A';
     
@@ -61,7 +84,7 @@ const PaymentSuccess = () => {
         const payment = result.data[0];
         setPaymentDetails(payment);
         
-        // Determine status based on payment data
+        // Be strict about payment status - only SUCCESS is truly successful
         switch (payment.payment_status) {
           case 'SUCCESS':
             setPaymentStatus('success');
@@ -71,20 +94,25 @@ const PaymentSuccess = () => {
             setPaymentStatus('failed');
             break;
           case 'PENDING':
-          case 'USER_DROPPED':
             setPaymentStatus('pending');
             break;
+          case 'USER_DROPPED':
+            setPaymentStatus('failed');
+            setError('Payment was cancelled by user');
+            break;
           default:
-            setPaymentStatus('unknown');
+            setPaymentStatus('pending');
+            setError('Payment status is being verified. Please wait...');
         }
       } else {
+        // If no payment data found, treat as pending (not failed yet)
         setPaymentStatus('pending');
-        setError('Payment verification in progress');
+        setError('Payment is being processed. Please wait while we verify your payment.');
       }
     } catch (error) {
       console.error('Error fetching payment status:', error);
       setPaymentStatus('error');
-      setError('Failed to verify payment status');
+      setError('Failed to verify payment status. Please contact support if payment was deducted.');
     }
   };
 
@@ -125,13 +153,13 @@ const PaymentSuccess = () => {
       case 'success':
         return 'Your payment has been processed successfully. Thank you for choosing our astrology services!';
       case 'failed':
-        return 'Your payment could not be processed. Please try again or contact support.';
+        return 'Your payment could not be processed or was cancelled. Please try again or contact support if amount was deducted.';
       case 'pending':
-        return 'Your payment is being processed. Please wait for confirmation.';
+        return 'Your payment is being verified. Please wait for confirmation. Do not make another payment.';
       case 'loading':
         return 'Please wait while we verify your payment status...';
       default:
-        return error || 'Unable to determine payment status. Please contact support.';
+        return error || 'Unable to determine payment status. Please contact support if payment was deducted.';
     }
   };
 

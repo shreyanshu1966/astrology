@@ -114,8 +114,9 @@ const PaymentForm = ({ service, onPaymentSuccess, onPaymentError }) => {
         throw new Error(result.error.message || 'Payment failed');
       }
       
-      // Payment successful
-      onPaymentSuccess?.(result.paymentDetails);
+      // Don't call onPaymentSuccess here - let the success page handle verification
+      // The user will be redirected to the success page where actual payment verification happens
+      console.log('Payment checkout completed, redirecting to verification page...');
       
     } catch (error) {
       console.error('Cashfree payment error:', error);

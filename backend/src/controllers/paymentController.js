@@ -167,6 +167,23 @@ class PaymentController {
 
       const result = await paymentService.getPaymentDetails(orderId);
 
+      // Add additional validation to ensure we have meaningful data
+      if (!result.data || result.data.length === 0) {
+        return res.status(200).json({
+          success: true,
+          message: 'No payment data found. Payment may still be processing.',
+          data: []
+        });
+      }
+
+      // Log payment status for debugging
+      const payment = result.data[0];
+      console.log(`Payment status for order ${orderId}:`, {
+        status: payment.payment_status,
+        amount: payment.payment_amount,
+        method: payment.payment_method
+      });
+
       res.status(200).json({
         success: true,
         message: 'Payment details fetched successfully',
@@ -175,9 +192,18 @@ class PaymentController {
 
     } catch (error) {
       console.error('Get payment status error:', error);
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to fetch payment status';
+      if (error.message && error.message.includes('not found')) {
+        errorMessage = 'Payment order not found. Please check your order ID.';
+      } else if (error.message && error.message.includes('network')) {
+        errorMessage = 'Network error while fetching payment status. Please try again.';
+      }
+      
       res.status(500).json({
         success: false,
-        message: error.message || 'Failed to fetch payment status'
+        message: errorMessage
       });
     }
   }
