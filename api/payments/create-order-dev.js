@@ -9,23 +9,9 @@ const initializeCashfree = () => {
     : Cashfree.Environment.SANDBOX;
 };
 
-// CORS headers
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
-
-export default async function handler(req, res) {
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    res.status(200).json({});
-    return;
-  }
-
+module.exports = async function createOrderHandler(req, res) {
   if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
@@ -36,10 +22,9 @@ export default async function handler(req, res) {
 
     // Validate required fields
     if (!amount || !customerDetails?.name || !customerDetails?.email || !customerDetails?.phone) {
-      res.status(400).json({ 
+      return res.status(400).json({ 
         error: 'Missing required fields: amount, customerDetails (name, email, phone)' 
       });
-      return;
     }
 
     // Generate unique order ID
@@ -58,7 +43,7 @@ export default async function handler(req, res) {
       },
       order_meta: {
         return_url: `${process.env.VERCEL_URL || 'http://localhost:3000'}/payment-success?order_id={order_id}`,
-        notify_url: `${process.env.VERCEL_URL || 'http://localhost:3000'}/api/payments/webhook`,
+        notify_url: `${process.env.VERCEL_URL || 'http://localhost:3002'}/api/payments/webhook`,
         payment_methods: 'cc,dc,nb,upi,paylater,emi',
       },
       order_note: orderNote,
@@ -70,11 +55,6 @@ export default async function handler(req, res) {
     const response = await Cashfree.PGCreateOrder('2023-08-01', orderRequest);
     
     if (response.data && response.data.payment_session_id) {
-      res.status(200).setHeader('Content-Type', 'application/json');
-      Object.keys(corsHeaders).forEach(key => {
-        res.setHeader(key, corsHeaders[key]);
-      });
-      
       res.json({
         success: true,
         order_id: orderId,
@@ -98,4 +78,4 @@ export default async function handler(req, res) {
       message: error.message 
     });
   }
-}
+};

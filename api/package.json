@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "vercel dev",
+    "dev-local": "node server.js",
     "deploy": "vercel --prod"
   },
   "dependencies": {
