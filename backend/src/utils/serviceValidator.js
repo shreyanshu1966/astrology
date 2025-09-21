@@ -1,10 +1,11 @@
 // Service catalog with fixed prices - prevents amount manipulation
 const SERVICE_CATALOG = {
-  'Complete Self-Awareness Report': { price: 499, maxPrice: 499 },
-  'Astrology Consultation': { price: 499, maxPrice: 499 },
-  'Numerology Report': { price: 499, maxPrice: 499 },
-  'Complete Life Reading': { price: 499, maxPrice: 499 },
-  // All services are priced at ₹499
+  'Self-Awareness Report': { price: 499, maxPrice: 499, testPrice: 1 },
+  'Complete Self-Awareness Report': { price: 499, maxPrice: 499, testPrice: 1 },
+  'Astrology Consultation': { price: 499, maxPrice: 499, testPrice: 1 },
+  'Numerology Report': { price: 499, maxPrice: 499, testPrice: 1 },
+  'Complete Life Reading': { price: 499, maxPrice: 499, testPrice: 1 },
+  // All services are priced at ₹499 (production) or ₹1 (test)
 };
 
 /**
@@ -16,14 +17,14 @@ const SERVICE_CATALOG = {
 function validateServiceAmount(serviceType, amount) {
   // Check if service exists in catalog
   if (!SERVICE_CATALOG[serviceType]) {
-    return false; // Unknown service
+    // For backward compatibility, allow any service with ₹499 or ₹1
+    return amount === 499 || amount === 1;
   }
   
-  // Since all services are ₹499, validate against this fixed price
-  const expectedAmount = 499;
+  const service = SERVICE_CATALOG[serviceType];
   
-  // Only allow exact amount of ₹499
-  return amount === expectedAmount;
+  // Allow either production price (₹499) or test price (₹1)
+  return amount === service.price || amount === service.testPrice;
 }
 
 module.exports = {

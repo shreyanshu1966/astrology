@@ -9,12 +9,13 @@ const PaymentForm = ({ service, onPaymentSuccess, onPaymentError }) => {
     dateOfBirth: '',
     whatsappNumber: '',
     reasonForReport: '',
-    amount: service?.price || 0,
-    serviceType: service?.name || 'Astrology Consultation'
+    amount: 499, // Fixed amount
+    serviceType: 'Self-Awareness Report'
   });
   
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isTestMode, setIsTestMode] = useState(false); // For ₹1 test payments
 
   const validateForm = () => {
     const newErrors = {};
@@ -49,10 +50,6 @@ const PaymentForm = ({ service, onPaymentSuccess, onPaymentError }) => {
       newErrors.reasonForReport = 'Please specify the reason for seeking a Numerology Report';
     }
     
-    if (!formData.amount || formData.amount <= 0) {
-      newErrors.amount = 'Invalid amount';
-    }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -71,6 +68,14 @@ const PaymentForm = ({ service, onPaymentSuccess, onPaymentError }) => {
         [name]: ''
       }));
     }
+  };
+
+  const handleTestModeToggle = () => {
+    setIsTestMode(!isTestMode);
+    setFormData(prev => ({
+      ...prev,
+      amount: !isTestMode ? 1 : 499
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -296,26 +301,38 @@ const PaymentForm = ({ service, onPaymentSuccess, onPaymentError }) => {
           )}
         </div>
         
-        <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
-            Amount (₹) *
-          </label>
-          <input
-            type="number"
-            id="amount"
-            name="amount"
-            value={formData.amount}
-            onChange={handleInputChange}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.amount ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="Enter amount"
-            min="1"
-            max="100000"
-          />
-          {errors.amount && (
-            <p className="mt-1 text-sm text-red-600">{errors.amount}</p>
-          )}
+        {/* Amount Display */}
+        <div className="bg-gray-50 p-4 rounded-lg border">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold text-gray-800">Complete Your Payment</h3>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-blue-600">₹{formData.amount}</div>
+              <div className="text-sm text-gray-500">
+                {isTestMode ? 'Test Payment' : 'Self-Awareness Report'}
+              </div>
+            </div>
+          </div>
+          
+          {/* Test Mode Toggle */}
+          <div className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+            <div>
+              <span className="text-sm font-medium text-yellow-800">Test Mode (₹1 Payment)</span>
+              <p className="text-xs text-yellow-600">For production-level testing</p>
+            </div>
+            <button
+              type="button"
+              onClick={handleTestModeToggle}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 ${
+                isTestMode ? 'bg-yellow-600' : 'bg-gray-200'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  isTestMode ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
         </div>
         
         <button

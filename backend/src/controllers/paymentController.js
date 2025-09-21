@@ -43,7 +43,7 @@ class PaymentController {
         console.warn(`Invalid amount for service: ${serviceType}, amount: ${amount}, IP: ${req.ip}`);
         return res.status(400).json({
           success: false,
-          message: 'Invalid amount. All services are priced at ₹499 only.'
+          message: 'Invalid amount. Services are priced at ₹499 (or ₹1 for testing).'
         });
       }
 
