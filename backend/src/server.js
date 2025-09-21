@@ -82,11 +82,20 @@ app.use((err, req, res, next) => {
 
 // Only start the server if not in Vercel environment
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-  app.listen(PORT, () => {
+  app.listen(PORT, async () => {
     console.log(`🚀 Astrology Backend Server is running on port ${PORT}`);
     console.log(`📍 Health check: http://localhost:${PORT}/health`);
     console.log(`💰 Payment API: http://localhost:${PORT}/api/payment`);
     console.log(`📧 Contact API: http://localhost:${PORT}/api/contact`);
+    
+    // Verify email service configuration
+    try {
+      const emailService = require('./services/emailService');
+      await emailService.verifyConnection();
+    } catch (error) {
+      console.warn('⚠️  Email service not configured properly:', error.message);
+      console.warn('📖 Please check EMAIL_SETUP.md for setup instructions');
+    }
   });
 }
 

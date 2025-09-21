@@ -2,19 +2,87 @@ const nodemailer = require('nodemailer');
 
 class EmailService {
   constructor() {
-    this.transporter = nodemailer.createTransporter({
-      service: 'gmail', // You can change this to your email provider
-      auth: {
-        user: process.env.EMAIL_USER || 'jaydeep.shirote@gmail.com', // Jaydeep's email
-        pass: process.env.EMAIL_PASSWORD // App password for Gmail
+    this.createTransporter();
+  }
+
+  createTransporter() {
+    try {
+      // Gmail configuration (default)
+      if (!process.env.EMAIL_SERVICE || process.env.EMAIL_SERVICE === 'gmail') {
+        this.transporter = nodemailer.createTransporter({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER || 'jaydeepshirote9@gmail.com',
+            pass: process.env.EMAIL_PASSWORD // Gmail App Password (16 characters)
+          },
+          secure: true, // Use SSL
+          port: 465
+        });
       }
-    });
+      // Outlook configuration
+      else if (process.env.EMAIL_SERVICE === 'outlook') {
+        this.transporter = nodemailer.createTransporter({
+          host: 'smtp-mail.outlook.com',
+          port: 587,
+          secure: false, // Use STARTTLS
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD
+          }
+        });
+      }
+      // Custom SMTP configuration
+      else if (process.env.EMAIL_SERVICE === 'custom') {
+        this.transporter = nodemailer.createTransporter({
+          host: process.env.EMAIL_HOST,
+          port: process.env.EMAIL_PORT || 587,
+          secure: process.env.EMAIL_SECURE === 'true',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD
+          }
+        });
+      }
+      else {
+        throw new Error('Invalid EMAIL_SERVICE configuration');
+      }
+
+      console.log('Email transporter created successfully');
+    } catch (error) {
+      console.error('Failed to create email transporter:', error.message);
+      this.transporter = null;
+    }
+  }
+
+  /**
+   * Verify email configuration
+   */
+  async verifyConnection() {
+    if (!this.transporter) {
+      throw new Error('Email transporter not initialized');
+    }
+
+    try {
+      await this.transporter.verify();
+      console.log('✅ Email service is ready');
+      return true;
+    } catch (error) {
+      console.error('❌ Email service verification failed:', error.message);
+      if (error.code === 'EAUTH') {
+        throw new Error('Email authentication failed. Please check your EMAIL_USER and EMAIL_PASSWORD (App Password for Gmail)');
+      }
+      throw error;
+    }
   }
 
   /**
    * Send order confirmation email to customer
    */
   async sendOrderConfirmation(orderDetails) {
+    if (!this.transporter) {
+      throw new Error('Email service not available');
+    }
+
     try {
       const {
         customerName,
@@ -116,6 +184,10 @@ class EmailService {
    * Send contact form message to Jaydeep
    */
   async sendContactMessage(contactDetails) {
+    if (!this.transporter) {
+      throw new Error('Email service not available');
+    }
+
     try {
       const {
         name,
@@ -194,6 +266,11 @@ class EmailService {
    * Send auto-reply to contact form submitter
    */
   async sendContactAutoReply(contactDetails) {
+    if (!this.transporter) {
+      console.warn('Email service not available for auto-reply');
+      return { success: false, error: 'Email service not available' };
+    }
+
     try {
       const { name, email } = contactDetails;
 
