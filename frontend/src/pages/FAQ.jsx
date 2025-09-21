@@ -78,7 +78,7 @@ const FAQ = () => {
       id: 9,
       category: 'pricing',
       question: "What are your pricing options?",
-      answer: "We offer various packages to suit different needs and budgets. Quick Assessments start at ₹999, Comprehensive Reports are ₹2,499, and Personal Consultations are ₹4,999. We also offer combo packages and annual forecast updates at discounted rates. All prices include detailed reports and follow-up support."
+      answer: "We currently offer our Complete Self-Awareness Report at an introductory price of just ₹499 (originally ₹1,999). This comprehensive 50+ page report includes detailed numerological analysis, life path guidance, personality insights, career direction, and relationship compatibility. The price includes the full report and follow-up support."
     },
     {
       id: 10,

@@ -1,5 +1,9 @@
 const paymentService = require('../services/paymentService');
 const emailService = require('../services/emailService');
+const { validateServiceAmount } = require('../utils/serviceValidator');
+
+// In-memory tracking for email confirmations (replace with database in production)
+const emailSentTracker = new Map();
 
 class PaymentController {
   /**
@@ -31,6 +35,15 @@ class PaymentController {
         return res.status(400).json({
           success: false,
           message: 'Invalid amount. Amount should be between 1 and 100000'
+        });
+      }
+
+      // Validate service amount against catalog
+      if (!validateServiceAmount(serviceType, amount)) {
+        console.warn(`Invalid amount for service: ${serviceType}, amount: ${amount}, IP: ${req.ip}`);
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid amount. All services are priced at ₹499 only.'
         });
       }
 
@@ -87,23 +100,7 @@ class PaymentController {
 
       const result = await paymentService.createOrder(orderData);
 
-      // Send order confirmation email
-      try {
-        await emailService.sendOrderConfirmation({
-          customerName,
-          customerEmail,
-          orderId: result.data.order_id,
-          orderAmount: amount,
-          serviceType,
-          dateOfBirth,
-          whatsappNumber: '+91' + whatsappNumber,
-          reasonForReport
-        });
-        console.log('Order confirmation email sent successfully');
-      } catch (emailError) {
-        console.error('Failed to send order confirmation email:', emailError.message);
-        // Don't fail the order creation if email fails
-      }
+      // Note: Email confirmation will be sent after payment verification, not during order creation
 
       res.status(200).json({
         success: true,
@@ -127,70 +124,16 @@ class PaymentController {
   }
 
   /**
-   * Handle payment webhook from Cashfree
+   * Handle payment webhook from Cashfree (DEPRECATED - not using webhooks)
    */
   async handleWebhook(req, res) {
-    try {
-      const signature = req.headers['x-webhook-signature'];
-      const timestamp = req.headers['x-webhook-timestamp'];
-      const webhookData = req.body;
-
-      console.log('Received webhook:', {
-        signature,
-        timestamp,
-        data: webhookData
-      });
-
-      // Verify webhook signature
-      const isValidSignature = paymentService.verifyWebhookSignature(
-        webhookData,
-        signature,
-        timestamp
-      );
-
-      if (!isValidSignature) {
-        console.error('Invalid webhook signature');
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid signature'
-        });
-      }
-
-      // Process the webhook based on event type
-      const { type, data } = webhookData;
-
-      switch (type) {
-        case 'PAYMENT_SUCCESS_WEBHOOK':
-          console.log('Payment successful:', data);
-          // Here you can update your database, send confirmation emails, etc.
-          break;
-        
-        case 'PAYMENT_FAILED_WEBHOOK':
-          console.log('Payment failed:', data);
-          // Handle payment failure
-          break;
-        
-        case 'PAYMENT_USER_DROPPED_WEBHOOK':
-          console.log('Payment dropped by user:', data);
-          // Handle user drop-off
-          break;
-        
-        default:
-          console.log('Unknown webhook type:', type);
-      }
-
-      res.status(200).json({
-        success: true,
-        message: 'Webhook processed successfully'
-      });
-
-    } catch (error) {
-      console.error('Webhook error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to process webhook'
-      });
-    }
+    // Webhook functionality disabled as per user request
+    // All payment confirmations are handled via status polling
+    
+    res.status(200).json({
+      success: true,
+      message: 'Webhook received but not processed (webhooks disabled)'
+    });
   }
 
   /**
@@ -225,6 +168,52 @@ class PaymentController {
         amount: payment.payment_amount,
         method: payment.payment_method
       });
+
+      // Send confirmation email if payment is successful and email hasn't been sent yet
+      if (payment.payment_status === 'SUCCESS') {
+        try {
+          // Check if email has already been sent for this order
+          const emailAlreadySent = emailSentTracker.has(orderId);
+          
+          if (!emailAlreadySent) {
+            // Extract customer details from order note or payment data
+            const orderNote = payment.order_note || '';
+            
+            // Try to parse customer details from order note
+            const dobMatch = orderNote.match(/DOB:\s*([^-]+)/);
+            const whatsappMatch = orderNote.match(/WhatsApp:\s*([^-]+)/);
+            const reasonMatch = orderNote.match(/Reason:\s*(.+)$/);
+            
+            if (payment.customer_email && payment.customer_name) {
+              await emailService.sendOrderConfirmation({
+                customerName: payment.customer_name,
+                customerEmail: payment.customer_email,
+                orderId: payment.order_id,
+                orderAmount: payment.payment_amount,
+                serviceType: 'Astrology Consultation',
+                dateOfBirth: dobMatch ? dobMatch[1].trim() : 'Not specified',
+                whatsappNumber: whatsappMatch ? whatsappMatch[1].trim() : payment.customer_phone || 'Not specified',
+                reasonForReport: reasonMatch ? reasonMatch[1].trim() : 'Astrology consultation requested'
+              });
+              
+              // Mark email as sent
+              emailSentTracker.set(orderId, {
+                sentAt: new Date(),
+                customerEmail: payment.customer_email
+              });
+              
+              console.log(`✅ Confirmation email sent for successful payment: ${orderId}`);
+            } else {
+              console.log(`⚠️ Missing customer details for order ${orderId}, cannot send confirmation email`);
+            }
+          } else {
+            console.log(`📧 Confirmation email already sent for order ${orderId}`);
+          }
+        } catch (emailError) {
+          console.error(`❌ Failed to send confirmation email for order ${orderId}:`, emailError.message);
+          // Don't fail the status request if email fails
+        }
+      }
 
       res.status(200).json({
         success: true,
@@ -293,13 +282,48 @@ class PaymentController {
         message: 'Payment service is healthy',
         data: {
           environment: config.environment,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          emailsSent: emailSentTracker.size
         }
       });
     } catch (error) {
       res.status(500).json({
         success: false,
         message: 'Payment service is not healthy',
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Check if confirmation email was sent for an order
+   */
+  async checkEmailStatus(req, res) {
+    try {
+      const { orderId } = req.params;
+      
+      if (!orderId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Order ID is required'
+        });
+      }
+
+      const emailStatus = emailSentTracker.get(orderId);
+      
+      res.status(200).json({
+        success: true,
+        data: {
+          orderId,
+          emailSent: !!emailStatus,
+          sentAt: emailStatus?.sentAt || null,
+          customerEmail: emailStatus?.customerEmail || null
+        }
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to check email status',
         error: error.message
       });
     }

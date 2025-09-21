@@ -9,7 +9,7 @@ class EmailService {
     try {
       // Gmail configuration (default)
       if (!process.env.EMAIL_SERVICE || process.env.EMAIL_SERVICE === 'gmail') {
-        this.transporter = nodemailer.createTransporter({
+        this.transporter = nodemailer.createTransport({
           service: 'gmail',
           auth: {
             user: process.env.EMAIL_USER || 'jaydeepshirote9@gmail.com',
@@ -21,7 +21,7 @@ class EmailService {
       }
       // Outlook configuration
       else if (process.env.EMAIL_SERVICE === 'outlook') {
-        this.transporter = nodemailer.createTransporter({
+        this.transporter = nodemailer.createTransport({
           host: 'smtp-mail.outlook.com',
           port: 587,
           secure: false, // Use STARTTLS
@@ -33,7 +33,7 @@ class EmailService {
       }
       // Custom SMTP configuration
       else if (process.env.EMAIL_SERVICE === 'custom') {
-        this.transporter = nodemailer.createTransporter({
+        this.transporter = nodemailer.createTransport({
           host: process.env.EMAIL_HOST,
           port: process.env.EMAIL_PORT || 587,
           secure: process.env.EMAIL_SECURE === 'true',
