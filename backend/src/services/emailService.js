@@ -95,25 +95,19 @@ class EmailService {
         reasonForReport
       } = orderDetails;
 
-      // Check if this is a test payment
-      const isTestPayment = orderAmount === 1;
-      const displayServiceType = isTestPayment ? `${serviceType} (Test Payment)` : serviceType;
-
       const mailOptions = {
         from: {
           name: 'Jaydeep Shirote - Astrology Services',
           address: process.env.EMAIL_USER || 'jaydeepshirote9@gmail.com'
         },
         to: customerEmail,
-        subject: `Order Confirmation - ${displayServiceType} (Order #${orderId})`,
+        subject: `Order Confirmation - ${serviceType} (Order #${orderId})`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
             <div style="text-align: center; margin-bottom: 30px;">
               <h1 style="color: #2c3e50; margin: 0;">Jaydeep Shirote</h1>
               <p style="color: #7f8c8d; margin: 5px 0;">Astrology & Numerology Services</p>
             </div>
-            
-            ${isTestPayment ? '<div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 5px; margin-bottom: 20px; text-align: center;"><strong style="color: #856404;">🧪 TEST PAYMENT - This is a test transaction</strong></div>' : ''}
             
             <h2 style="color: #27ae60; border-bottom: 2px solid #27ae60; padding-bottom: 10px;">Order Confirmation</h2>
             
@@ -130,7 +124,7 @@ class EmailService {
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Service:</strong></td>
-                  <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${displayServiceType}</td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${serviceType}</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Amount Paid:</strong></td>
