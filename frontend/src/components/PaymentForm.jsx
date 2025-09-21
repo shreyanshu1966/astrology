@@ -117,7 +117,7 @@ const PaymentForm = ({ service, onPaymentSuccess, onPaymentError }) => {
       }
       
       const cashfree = window.Cashfree({
-        mode: 'sandbox' // Change to 'production' for live environment
+        mode: import.meta.env.VITE_CASHFREE_ENVIRONMENT || 'sandbox' // Use environment variable
       });
       
       const checkoutOptions = {
