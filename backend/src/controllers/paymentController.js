@@ -124,16 +124,118 @@ class PaymentController {
   }
 
   /**
-   * Handle payment webhook from Cashfree (DEPRECATED - not using webhooks)
+   * Handle payment webhook from Cashfree
    */
   async handleWebhook(req, res) {
-    // Webhook functionality disabled as per user request
-    // All payment confirmations are handled via status polling
-    
-    res.status(200).json({
-      success: true,
-      message: 'Webhook received but not processed (webhooks disabled)'
-    });
+    try {
+      const signature = req.headers['x-webhook-signature'];
+      const timestamp = req.headers['x-webhook-timestamp'];
+      const webhookData = req.body;
+
+      console.log('Received webhook:', {
+        signature,
+        timestamp,
+        data: webhookData
+      });
+
+      // Verify webhook signature
+      const isValidSignature = paymentService.verifyWebhookSignature(
+        webhookData,
+        signature,
+        timestamp
+      );
+
+      if (!isValidSignature) {
+        console.error('Invalid webhook signature');
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid signature'
+        });
+      }
+
+      // Process the webhook based on event type
+      const { type, data } = webhookData;
+
+      switch (type) {
+        case 'PAYMENT_SUCCESS_WEBHOOK':
+          console.log('Payment successful via webhook:', data);
+          
+          // Send confirmation email for successful payment
+          try {
+            const payment = data.payment || data;
+            const orderId = payment.order_id;
+            
+            // Check if email has already been sent for this order
+            const emailAlreadySent = emailSentTracker.has(orderId);
+            
+            if (!emailAlreadySent && payment.payment_status === 'SUCCESS') {
+              // Extract customer details from order or payment data
+              const orderNote = payment.order_note || '';
+              
+              // Parse customer details from order note
+              const dobMatch = orderNote.match(/DOB:\s*([^-]+)/);
+              const whatsappMatch = orderNote.match(/WhatsApp:\s*([^-]+)/);
+              const reasonMatch = orderNote.match(/Reason:\s*(.+)$/);
+              const serviceMatch = orderNote.match(/Payment for\s*([^-]+)/);
+              
+              if (payment.customer_email && payment.customer_name) {
+                await emailService.sendOrderConfirmation({
+                  customerName: payment.customer_name,
+                  customerEmail: payment.customer_email,
+                  orderId: payment.order_id,
+                  orderAmount: payment.order_amount,
+                  serviceType: serviceMatch ? serviceMatch[1].trim() : 'Complete Self-Awareness Report',
+                  dateOfBirth: dobMatch ? dobMatch[1].trim() : 'Not specified',
+                  whatsappNumber: whatsappMatch ? whatsappMatch[1].trim() : payment.customer_phone || 'Not specified',
+                  reasonForReport: reasonMatch ? reasonMatch[1].trim() : 'Astrology consultation requested'
+                });
+                
+                // Mark email as sent
+                emailSentTracker.set(orderId, {
+                  sentAt: new Date(),
+                  customerEmail: payment.customer_email,
+                  method: 'webhook'
+                });
+                
+                console.log(`✅ Confirmation email sent via webhook for order: ${orderId}`);
+              } else {
+                console.log(`⚠️ Missing customer details in webhook for order ${orderId}`);
+              }
+            } else if (emailAlreadySent) {
+              console.log(`📧 Confirmation email already sent for order ${orderId}`);
+            }
+          } catch (emailError) {
+            console.error('❌ Failed to send confirmation email via webhook:', emailError.message);
+            // Don't fail the webhook processing if email fails
+          }
+          break;
+        
+        case 'PAYMENT_FAILED_WEBHOOK':
+          console.log('Payment failed:', data);
+          // Handle payment failure
+          break;
+        
+        case 'PAYMENT_USER_DROPPED_WEBHOOK':
+          console.log('Payment dropped by user:', data);
+          // Handle user drop-off
+          break;
+        
+        default:
+          console.log('Unknown webhook type:', type);
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Webhook processed successfully'
+      });
+
+    } catch (error) {
+      console.error('Webhook error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to process webhook'
+      });
+    }
   }
 
   /**

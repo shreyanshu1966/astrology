@@ -11,6 +11,11 @@ const contactRoutes = require('./routes/contact');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust proxy for production (Vercel, etc.)
+if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+  app.set('trust proxy', 1);
+}
+
 // Security middleware
 app.use(helmet());
 

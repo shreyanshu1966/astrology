@@ -13,7 +13,7 @@ router.post('/create-order',
   paymentController.createOrder
 );
 
-// Handle Cashfree webhook (deprecated - webhooks disabled)
+// Handle Cashfree webhook (no rate limiting for webhooks)
 router.post('/webhook', paymentController.handleWebhook);
 
 // Get payment status by order ID
