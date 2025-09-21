@@ -13,6 +13,12 @@ router.post('/create-order',
   paymentController.createOrder
 );
 
+// Create test payment order (₹1-10 for testing)
+router.post('/test-order', 
+  orderCreationLimiter,
+  paymentController.createTestOrder
+);
+
 // Handle Cashfree webhook (no rate limiting for webhooks)
 router.post('/webhook', paymentController.handleWebhook);
 

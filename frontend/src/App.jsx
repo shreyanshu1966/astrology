@@ -12,6 +12,7 @@ import FAQ from './pages/FAQ'
 import Terms from './pages/Terms'
 import Refunds from './pages/Refunds'
 import PaymentSuccess from './pages/PaymentSuccess'
+import PaymentTest from './pages/PaymentTest'
 import useRouteBasedWebGLCleanup from './hooks/useRouteBasedWebGLCleanup'
 import { fontManager } from './utils/fontManager'
 
@@ -35,6 +36,11 @@ function AppRoutes() {
         <Route path="/payment/success" element={
           <ErrorBoundary>
             <PaymentSuccess />
+          </ErrorBoundary>
+        } />
+        <Route path="/payment/test" element={
+          <ErrorBoundary>
+            <PaymentTest />
           </ErrorBoundary>
         } />
       </Routes>

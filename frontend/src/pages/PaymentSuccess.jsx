@@ -10,6 +10,7 @@ const PaymentSuccess = () => {
   const [error, setError] = useState(null);
   
   const orderId = searchParams.get('order_id');
+  const isTestPayment = searchParams.get('test') === 'true';
 
   useEffect(() => {
     if (orderId) {
@@ -136,26 +137,32 @@ const PaymentSuccess = () => {
   const getStatusTitle = () => {
     switch (paymentStatus) {
       case 'success':
-        return 'Payment Successful!';
+        return isTestPayment ? '🧪 Test Payment Successful!' : 'Payment Successful!';
       case 'failed':
-        return 'Payment Failed';
+        return isTestPayment ? '🧪 Test Payment Failed' : 'Payment Failed';
       case 'pending':
-        return 'Payment Pending';
+        return isTestPayment ? '🧪 Test Payment Pending' : 'Payment Pending';
       case 'loading':
-        return 'Verifying Payment...';
+        return isTestPayment ? 'Verifying Test Payment...' : 'Verifying Payment...';
       default:
-        return 'Payment Status Unknown';
+        return isTestPayment ? 'Test Payment Status Unknown' : 'Payment Status Unknown';
     }
   };
 
   const getStatusMessage = () => {
     switch (paymentStatus) {
       case 'success':
-        return 'Your payment has been processed successfully. Thank you for choosing our astrology services!';
+        return isTestPayment 
+          ? 'Your test payment has been processed successfully. The payment gateway is working correctly!' 
+          : 'Your payment has been processed successfully. Thank you for choosing our astrology services!';
       case 'failed':
-        return 'Your payment could not be processed or was cancelled. Please try again or contact support if amount was deducted.';
+        return isTestPayment 
+          ? 'Your test payment could not be processed or was cancelled. This may indicate an issue with the payment gateway configuration.' 
+          : 'Your payment could not be processed or was cancelled. Please try again or contact support if amount was deducted.';
       case 'pending':
-        return 'Your payment is being verified. Please wait for confirmation. Do not make another payment.';
+        return isTestPayment 
+          ? 'Your test payment is being verified. Please wait for confirmation.' 
+          : 'Your payment is being verified. Please wait for confirmation. Do not make another payment.';
       case 'loading':
         return 'Please wait while we verify your payment status...';
       default:
@@ -184,6 +191,14 @@ const PaymentSuccess = () => {
         transition={{ duration: 0.5 }}
         className="max-w-md w-full bg-white rounded-lg shadow-xl p-8 text-center"
       >
+        {isTestPayment && (
+          <div className="mb-6 p-3 bg-yellow-100 border border-yellow-300 rounded-lg">
+            <p className="text-yellow-800 text-sm font-medium">
+              🧪 This is a test payment transaction
+            </p>
+          </div>
+        )}
+        
         <div className="flex justify-center mb-6">
           {getStatusIcon()}
         </div>
@@ -238,11 +253,11 @@ const PaymentSuccess = () => {
           )}
           
           <Link
-            to="/"
+            to={isTestPayment ? "/payment/test" : "/"}
             className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Home
+            {isTestPayment ? "Back to Test Page" : "Back to Home"}
           </Link>
         </div>
         

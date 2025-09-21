@@ -535,6 +535,110 @@ class PaymentController {
       });
     }
   }
+
+  /**
+   * Create a test payment order (₹1-10 for testing purposes)
+   */
+  async createTestOrder(req, res) {
+    try {
+      const {
+        amount = 1,
+        customerName,
+        customerEmail,
+        customerPhone,
+        dateOfBirth,
+        whatsappNumber,
+        reasonForReport,
+        serviceType = 'Payment Test'
+      } = req.body;
+
+      // Validate required fields
+      if (!customerName || !customerEmail || !customerPhone || !dateOfBirth || !whatsappNumber || !reasonForReport) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing required fields for test payment'
+        });
+      }
+
+      // Validate test amount (₹1-10 only)
+      if (!amount || amount < 1 || amount > 10) {
+        return res.status(400).json({
+          success: false,
+          message: 'Test amount should be between ₹1 and ₹10'
+        });
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(customerEmail)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid email format'
+        });
+      }
+
+      // Validate phone format (10 digits)
+      const phoneRegex = /^[6-9]\d{9}$/;
+      if (!phoneRegex.test(customerPhone)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid phone number. Please provide a valid 10-digit Indian mobile number'
+        });
+      }
+
+      // Validate WhatsApp number format (10 digits)
+      if (!phoneRegex.test(whatsappNumber)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid WhatsApp number. Please provide a valid 10-digit Indian mobile number'
+        });
+      }
+
+      const orderId = 'TEST_' + paymentService.generateOrderId();
+
+      const orderData = {
+        orderId,
+        orderAmount: amount,
+        customerDetails: {
+          customerName,
+          customerEmail,
+          customerPhone: '+91' + customerPhone,
+          dateOfBirth,
+          whatsappNumber: '+91' + whatsappNumber,
+          reasonForReport
+        },
+        orderNote: `TEST PAYMENT - ${serviceType} - Amount: ₹${amount} - ${reasonForReport.substring(0, 50)}`
+      };
+
+      const result = await paymentService.createOrder(orderData);
+
+      console.log('Test order created:', {
+        orderId: orderId,
+        amount: amount,
+        customer: customerEmail
+      });
+
+      res.status(200).json({
+        success: true,
+        message: 'Test order created successfully',
+        data: {
+          orderId: result.data.order_id,
+          paymentSessionId: result.data.payment_session_id,
+          orderAmount: result.data.order_amount,
+          orderCurrency: result.data.order_currency,
+          orderStatus: result.data.order_status,
+          isTest: true
+        }
+      });
+
+    } catch (error) {
+      console.error('Create test order error:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to create test payment order'
+      });
+    }
+  }
 }
 
 module.exports = new PaymentController();
