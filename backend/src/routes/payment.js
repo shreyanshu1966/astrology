@@ -25,4 +25,7 @@ router.get('/link/:orderId', paymentController.getPaymentLink);
 // Check email confirmation status for an order
 router.get('/email-status/:orderId', paymentController.checkEmailStatus);
 
+// Manually send confirmation email for an order
+router.post('/send-email/:orderId', paymentController.sendConfirmationEmail);
+
 module.exports = router;

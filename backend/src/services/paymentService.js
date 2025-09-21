@@ -98,6 +98,25 @@ class PaymentService {
   }
 
   /**
+   * Get order details by order ID (includes customer information)
+   * @param {string} orderId - Order ID
+   * @returns {Object} - Order details with customer info
+   */
+  async getOrderDetails(orderId) {
+    try {
+      const response = await this.cashfree.PGFetchOrder('2023-08-01', orderId);
+      
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error fetching order details:', error.response?.data || error.message);
+      throw new Error('Failed to fetch order details: ' + (error.response?.data?.message || error.message));
+    }
+  }
+
+  /**
    * Verify payment signature
    * @param {Object} webhookData - Webhook data from Cashfree
    * @returns {boolean} - Signature verification result

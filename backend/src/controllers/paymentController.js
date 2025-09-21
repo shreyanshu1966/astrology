@@ -278,35 +278,41 @@ class PaymentController {
           const emailAlreadySent = emailSentTracker.has(orderId);
           
           if (!emailAlreadySent) {
-            // Extract customer details from order note or payment data
-            const orderNote = payment.order_note || '';
+            // Get order details to retrieve customer information
+            const orderResult = await paymentService.getOrderDetails(orderId);
             
-            // Try to parse customer details from order note
-            const dobMatch = orderNote.match(/DOB:\s*([^-]+)/);
-            const whatsappMatch = orderNote.match(/WhatsApp:\s*([^-]+)/);
-            const reasonMatch = orderNote.match(/Reason:\s*(.+)$/);
-            
-            if (payment.customer_email && payment.customer_name) {
+            if (orderResult.data && orderResult.data.customer_details) {
+              const order = orderResult.data;
+              const customer = order.customer_details;
+              
+              // Extract additional details from order note
+              const orderNote = order.order_note || '';
+              const dobMatch = orderNote.match(/DOB:\s*([^-]+)/);
+              const whatsappMatch = orderNote.match(/WhatsApp:\s*([^-]+)/);
+              const reasonMatch = orderNote.match(/Reason:\s*(.+)$/);
+              const serviceMatch = orderNote.match(/Payment for\s*([^-]+)/);
+              
               await emailService.sendOrderConfirmation({
-                customerName: payment.customer_name,
-                customerEmail: payment.customer_email,
-                orderId: payment.order_id,
+                customerName: customer.customer_name,
+                customerEmail: customer.customer_email,
+                orderId: orderId,
                 orderAmount: payment.payment_amount,
-                serviceType: 'Astrology Consultation',
+                serviceType: serviceMatch ? serviceMatch[1].trim() : 'Complete Self-Awareness Report',
                 dateOfBirth: dobMatch ? dobMatch[1].trim() : 'Not specified',
-                whatsappNumber: whatsappMatch ? whatsappMatch[1].trim() : payment.customer_phone || 'Not specified',
+                whatsappNumber: whatsappMatch ? whatsappMatch[1].trim() : customer.customer_phone || 'Not specified',
                 reasonForReport: reasonMatch ? reasonMatch[1].trim() : 'Astrology consultation requested'
               });
               
               // Mark email as sent
               emailSentTracker.set(orderId, {
                 sentAt: new Date(),
-                customerEmail: payment.customer_email
+                customerEmail: customer.customer_email,
+                method: 'status-check'
               });
               
-              console.log(`✅ Confirmation email sent for successful payment: ${orderId}`);
+              console.log(`✅ Confirmation email sent via status check for order: ${orderId}`);
             } else {
-              console.log(`⚠️ Missing customer details for order ${orderId}, cannot send confirmation email`);
+              console.log(`⚠️ No customer details found in order for ${orderId}`);
             }
           } else {
             console.log(`📧 Confirmation email already sent for order ${orderId}`);
@@ -426,6 +432,105 @@ class PaymentController {
       res.status(500).json({
         success: false,
         message: 'Failed to check email status',
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Manually send confirmation email for an order (for testing/recovery)
+   */
+  async sendConfirmationEmail(req, res) {
+    try {
+      const { orderId } = req.params;
+      
+      if (!orderId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Order ID is required'
+        });
+      }
+
+      // Get payment details first
+      const paymentResult = await paymentService.getPaymentDetails(orderId);
+      
+      if (!paymentResult.data || paymentResult.data.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Payment not found'
+        });
+      }
+
+      const payment = paymentResult.data[0];
+      
+      if (payment.payment_status !== 'SUCCESS') {
+        return res.status(400).json({
+          success: false,
+          message: 'Email can only be sent for successful payments'
+        });
+      }
+
+      // Check if email already sent
+      const emailAlreadySent = emailSentTracker.has(orderId);
+      
+      if (emailAlreadySent) {
+        return res.status(200).json({
+          success: true,
+          message: 'Email already sent for this order',
+          data: emailSentTracker.get(orderId)
+        });
+      }
+
+      // Extract customer details from order note
+      const orderNote = payment.order_note || '';
+      const dobMatch = orderNote.match(/DOB:\s*([^-]+)/);
+      const whatsappMatch = orderNote.match(/WhatsApp:\s*([^-]+)/);
+      const reasonMatch = orderNote.match(/Reason:\s*(.+)$/);
+      const serviceMatch = orderNote.match(/Payment for\s*([^-]+)/);
+
+      if (!payment.customer_email || !payment.customer_name) {
+        return res.status(400).json({
+          success: false,
+          message: 'Customer email or name not found in payment details'
+        });
+      }
+
+      // Send email
+      await emailService.sendOrderConfirmation({
+        customerName: payment.customer_name,
+        customerEmail: payment.customer_email,
+        orderId: payment.order_id,
+        orderAmount: payment.payment_amount,
+        serviceType: serviceMatch ? serviceMatch[1].trim() : 'Complete Self-Awareness Report',
+        dateOfBirth: dobMatch ? dobMatch[1].trim() : 'Not specified',
+        whatsappNumber: whatsappMatch ? whatsappMatch[1].trim() : payment.customer_phone || 'Not specified',
+        reasonForReport: reasonMatch ? reasonMatch[1].trim() : 'Astrology consultation requested'
+      });
+
+      // Mark email as sent
+      emailSentTracker.set(orderId, {
+        sentAt: new Date(),
+        customerEmail: payment.customer_email,
+        method: 'manual'
+      });
+
+      console.log(`✅ Manual confirmation email sent for order: ${orderId}`);
+
+      res.status(200).json({
+        success: true,
+        message: 'Confirmation email sent successfully',
+        data: {
+          orderId,
+          customerEmail: payment.customer_email,
+          sentAt: new Date()
+        }
+      });
+
+    } catch (error) {
+      console.error('Manual email sending error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to send confirmation email',
         error: error.message
       });
     }
