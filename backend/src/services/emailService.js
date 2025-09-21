@@ -98,7 +98,7 @@ class EmailService {
       const mailOptions = {
         from: {
           name: 'Jaydeep Shirote - Astrology Services',
-          address: process.env.EMAIL_USER || 'jaydeep.shirote@gmail.com'
+          address: process.env.EMAIL_USER || 'jaydeepshirote9@gmail.com'
         },
         to: customerEmail,
         subject: `Order Confirmation - ${serviceType} (Order #${orderId})`,
@@ -157,8 +157,8 @@ class EmailService {
             
             <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
               <p style="color: #7f8c8d; margin: 5px 0;">Contact us:</p>
-              <p style="margin: 5px 0;">📧 jaydeep.shirote@gmail.com</p>
-              <p style="margin: 5px 0;">📱 WhatsApp: +91 [Your WhatsApp Number]</p>
+              <p style="margin: 5px 0;">📧 jaydeepshirote9@gmail.com</p>
+              <p style="margin: 5px 0;">📱 WhatsApp: +91 99212 30963</p>
               <p style="color: #7f8c8d; font-size: 12px; margin-top: 20px;">
                 This is an automated confirmation email. Please do not reply to this email.
               </p>
@@ -200,9 +200,9 @@ class EmailService {
       const mailOptions = {
         from: {
           name: 'Website Contact Form',
-          address: process.env.EMAIL_USER || 'jaydeep.shirote@gmail.com'
+          address: process.env.EMAIL_USER || 'jaydeepshirote9@gmail.com'
         },
-        to: process.env.EMAIL_USER || 'jaydeep.shirote@gmail.com',
+        to: process.env.EMAIL_USER || 'jaydeepshirote9@gmail.com',
         replyTo: email,
         subject: `New Contact Form Message: ${subject}`,
         html: `
@@ -277,7 +277,7 @@ class EmailService {
       const mailOptions = {
         from: {
           name: 'Jaydeep Shirote - Astrology Services',
-          address: process.env.EMAIL_USER || 'jaydeep.shirote@gmail.com'
+          address: process.env.EMAIL_USER || 'jaydeepshirote9@gmail.com'
         },
         to: email,
         subject: 'Thank you for contacting us - We will get back to you soon',
@@ -306,7 +306,8 @@ class EmailService {
             <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
               <p style="color: #7f8c8d; margin: 5px 0;">Best regards,</p>
               <p style="margin: 5px 0;"><strong>Jaydeep Shirote</strong></p>
-              <p style="margin: 5px 0;">📧 jaydeep.shirote@gmail.com</p>
+              <p style="margin: 5px 0;">📧 jaydeepshirote9@gmail.com</p>
+              <p style="margin: 5px 0;">📱 WhatsApp: +91 99212 30963</p>
               <p style="color: #7f8c8d; font-size: 12px; margin-top: 20px;">
                 This is an automated response. We will reply to your message personally soon.
               </p>

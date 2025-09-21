@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { Star, Sparkles, ArrowRight } from 'lucide-react'
+import { Star, Sparkles, ArrowRight, Download } from 'lucide-react'
 import { gsap } from 'gsap'
 
 const HeroSection = () => {
@@ -9,6 +9,19 @@ const HeroSection = () => {
   const subtitleRef = useRef()
   const ctaRef = useRef()
   const offerRef = useRef()
+
+  const handleDownloadSampleReport = () => {
+    // Create a temporary link element
+    const link = document.createElement('a')
+    link.href = '/sample-report.pdf'
+    link.download = 'sample-astrology-report.pdf'
+    link.style.display = 'none'
+    
+    // Add to DOM, click, and remove
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
 
   useEffect(() => {
     // Set initial state for smooth animation
@@ -150,9 +163,17 @@ const HeroSection = () => {
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
             </Link>
             
+            <button
+              onClick={handleDownloadSampleReport}
+              className="btn-secondary group w-full sm:w-auto text-center font-semibold"
+            >
+              View Sample Report
+              <Download className="w-5 h-5 ml-2 group-hover:translate-y-1 transition-transform duration-300" />
+            </button>
+            
             <Link
               to="/framework"
-              className="btn-secondary w-full sm:w-auto text-center font-semibold"
+              className="btn-outline w-full sm:w-auto text-center font-semibold"
             >
               Explore Our Framework
             </Link>

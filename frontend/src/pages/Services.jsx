@@ -23,7 +23,6 @@ import { useScrollAnimation, useHoverAnimation, useTextRevealAnimation } from '.
 
 const Services = () => {
   const [selectedPackage, setSelectedPackage] = useState('comprehensive')
-  const [showSampleReport, setShowSampleReport] = useState(false)
   const [showPaymentForm, setShowPaymentForm] = useState(false)
   
   const heroRef = useScrollAnimation('fadeIn')
@@ -36,6 +35,22 @@ const Services = () => {
   const hoverRef1 = useHoverAnimation(1.03)
   const hoverRef2 = useHoverAnimation(1.03)
   const hoverRef3 = useHoverAnimation(1.03)
+
+  const handleDownloadSampleReport = () => {
+    // Create a temporary link element to trigger download
+    const link = document.createElement('a');
+    link.href = '/Numerological_Report_Sample.pdf';
+    link.download = 'Numerological_Report_Sample.pdf';
+    link.target = '_blank'; // Open in new tab as fallback
+    
+    // Append to body, click, and remove
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Show feedback to user
+    alert('📄 Sample report download started! Please check your downloads folder.');
+  };
 
   const services = [
     {
@@ -232,48 +247,55 @@ const Services = () => {
             </p>
             <div className="flex justify-center">
               <button
-                className="btn-secondary inline-flex items-center"
-                onClick={() => setShowSampleReport(!showSampleReport)}
+                className="btn-secondary inline-flex items-center hover:bg-cosmic-purple/10 transition-colors"
+                onClick={handleDownloadSampleReport}
               >
-                {showSampleReport ? 'Hide' : 'View'} Sample Report
+                View Sample Report
                 <Download className="w-4 h-4 ml-2" />
               </button>
             </div>
           </div>
           
-          {showSampleReport && (
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-cosmic animate-fade-in-up">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {reportSections.map((section, index) => (
-                  <div key={index} className="flex items-start space-x-4">
-                    <div className="bg-cosmic-purple/10 p-3 rounded-xl">
-                      <section.icon className="w-6 h-6 text-cosmic-purple" />
-                    </div>
-                    <div>
-                      <h3 className="font-heading font-semibold text-lg mb-2 text-cosmic">
-                        {section.title}
-                      </h3>
-                      <p className="text-gray-600">
-                        {section.description}
-                      </p>
-                    </div>
+          {/* Sample Report Features */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-cosmic">
+            <div className="text-center mb-8">
+              <h3 className="font-heading font-semibold text-xl mb-3 text-cosmic">
+                What's Inside Your Complete Report?
+              </h3>
+              <p className="text-gray-600">
+                Click "View Sample Report" above to download a sample and see what awaits you!
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">{reportSections.map((section, index) => (
+                <div key={index} className="flex items-start space-x-4">
+                  <div className="bg-cosmic-purple/10 p-3 rounded-xl">
+                    <section.icon className="w-6 h-6 text-cosmic-purple" />
                   </div>
-                ))}
-              </div>
-              
-              <div className="mt-8 p-6 bg-gradient-to-r from-cosmic-purple/5 to-golden-wisdom/5 rounded-xl">
-                <h4 className="font-heading font-semibold text-lg mb-3 text-cosmic">
-                  Sample Insight Preview:
-                </h4>
-                <div className="italic text-gray-700 leading-relaxed">
-                  "Your Life Path Number 7 reveals a natural inclination toward deep thinking and spiritual 
-                  exploration. You possess an analytical mind that seeks truth beyond surface appearances. 
-                  This year, focus on developing your intuitive abilities while maintaining practical 
-                  grounding in your career..."
+                  <div>
+                    <h4 className="font-heading font-semibold text-lg mb-2 text-cosmic">
+                      {section.title}
+                    </h4>
+                    <p className="text-gray-600">
+                      {section.description}
+                    </p>
+                  </div>
                 </div>
+              ))}
+            </div>
+            
+            <div className="mt-8 p-6 bg-gradient-to-r from-cosmic-purple/5 to-golden-wisdom/5 rounded-xl">
+              <h4 className="font-heading font-semibold text-lg mb-3 text-cosmic">
+                Sample Insight Preview:
+              </h4>
+              <div className="italic text-gray-700 leading-relaxed">
+                "Your Life Path Number 7 reveals a natural inclination toward deep thinking and spiritual 
+                exploration. You possess an analytical mind that seeks truth beyond surface appearances. 
+                This year, focus on developing your intuitive abilities while maintaining practical 
+                grounding in your career..."
               </div>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Process Section */}
