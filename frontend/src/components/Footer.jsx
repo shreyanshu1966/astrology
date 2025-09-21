@@ -56,11 +56,11 @@ const Footer = () => {
             {/* Contact Info */}
             <div className="space-y-3">
               <a 
-                href="mailto:info@jaydeepshirote.com"
+                href="mailto:jaydeepshirote9@gmail.com"
                 className="flex items-center space-x-3 text-white/80 hover:text-golden-wisdom transition-colors duration-300"
               >
                 <Mail className="w-5 h-5" />
-                <span>info@jaydeepshirote.com</span>
+                <span>jaydeepshirote9@gmail.com</span>
               </a>
               
               <a 
